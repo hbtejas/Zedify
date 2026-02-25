@@ -1,0 +1,15 @@
+{
+  "name": "skillswap-campus",
+  "version": "1.0.0",
+  "description": "SkillSwap Campus – Real-Time Student Skill Exchange Platform",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --legacy-peer-deps --prefix frontend",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgGreen.bold\"",
+    "start:backend": "npm run dev --prefix backend",
+    "start:frontend": "npm start --prefix frontend",
+    "check:env": "npm run check:env --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
