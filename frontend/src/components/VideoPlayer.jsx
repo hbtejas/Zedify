@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSocket } from '../context/SocketContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -238,7 +238,6 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
   const [spotlightId,      setSpotlightId]      = useState(null);
   const [handRaised,       setHandRaised]       = useState(false);
   const [raisedHands,      setRaisedHands]      = useState({});
-  const [participants,     setParticipants]     = useState([]);
   const [peerMediaState,   setPeerMediaState]   = useState({});
   const [floatingReactions,setFloatingReactions]= useState([]);
   const [chatMessages,     setChatMessages]     = useState([]);
@@ -264,13 +263,13 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
 
   /* --- Local media --------------------------------------------------------- */
   useEffect(() => {
+    const peers = peersRef.current;
     const start = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localStreamRef.current = stream;
         setLocalStream(stream);
         if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-        setParticipants([{ id: user._id, name: user.name, isHost, isLocal: true }]);
         startAudioDetection(stream);
       } catch (e) {
         setError('Camera/mic unavailable: ' + e.message);
@@ -280,7 +279,7 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
     return () => {
       cancelAnimationFrame(animFrameRef.current);
       localStreamRef.current?.getTracks().forEach((t) => t.stop());
-      Object.values(peersRef.current).forEach((pc) => pc.close());
+      Object.values(peers).forEach((pc) => pc.close());
     };
   }, []); // eslint-disable-line
 
@@ -345,7 +344,6 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
 
     const handleUserJoined = async ({ userId, userName, socketId }) => {
       setRemoteStreams((p) => ({ ...p, [socketId]: { stream: null, userId, userName } }));
-      setParticipants((p) => p.find((x) => x.id === userId) ? p : [...p, { id: userId, name: userName, socketId }]);
       const pc = createPeerConnection(socketId);
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
@@ -353,7 +351,6 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
     };
     const handleVideoOffer = async ({ offer, fromSocketId, fromUserId, fromUserName }) => {
       setRemoteStreams((p) => ({ ...p, [fromSocketId]: { stream: null, userId: fromUserId, userName: fromUserName || '' } }));
-      setParticipants((p) => p.find((x) => x.id === fromUserId) ? p : [...p, { id: fromUserId, name: fromUserName || 'Participant', socketId: fromSocketId }]);
       const pc = createPeerConnection(fromSocketId);
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       const answer = await pc.createAnswer();
