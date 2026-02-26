@@ -22,11 +22,14 @@ const NAV_LINKS = [
 ];
 
 const Avatar = ({ user, size = 'sm' }) => {
-  const cls = size === 'sm' ? 'w-8 h-8 text-sm' : 'w-9 h-9 text-base';
+  const sz = size === 'sm' ? 'w-8 h-8 text-sm' : 'w-9 h-9 text-base';
   return user?.profilePicture ? (
-    <img src={user.profilePicture} alt={user.name} className={`${cls} rounded-full object-cover`} />
+    <img src={user.profilePicture} alt={user.name} className={`${sz} rounded-full object-cover`} />
   ) : (
-    <div className={`${cls} rounded-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white font-bold flex-shrink-0`}>
+    <div
+      className={`${sz} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0`}
+      style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}
+    >
       {user?.name?.charAt(0).toUpperCase() || '?'}
     </div>
   );
@@ -49,44 +52,48 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleLogout = () => {
-    setMenuOpen(false);
-    logout();
-    navigate('/login');
-  };
-
+  const handleLogout = () => { setMenuOpen(false); logout(); navigate('/login'); };
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-card">
+    <>
+    <nav className="glass-nav sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
 
           {/* â”€â”€ Logo â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-            <ZedifyLogo size={34} />
+            <div className="relative">
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-60 transition-opacity duration-300" style={{ background: 'radial-gradient(circle,rgba(99,102,241,0.5) 0%,transparent 70%)', filter: 'blur(10px)' }} />
+              <ZedifyLogo size={34} />
+            </div>
             <div className="hidden sm:flex flex-col leading-none">
-              <span className="font-black text-base text-gray-900 tracking-tight">Zedify</span>
-              <span className="text-[9px] text-primary-400 font-semibold uppercase tracking-wider">Skill Exchange</span>
+              <span className="font-black text-base text-white tracking-tight">Zedify</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider" style={{ background: 'linear-gradient(90deg,#93c5fd,#c4b5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Skill Exchange</span>
             </div>
           </Link>
 
           {/* â”€â”€ Desktop nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-          <div className="hidden md:flex items-center gap-1 bg-surface-50 rounded-xl p-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  isActive(link.path)
-                    ? 'bg-white text-primary-700 shadow-card font-semibold'
-                    : 'text-gray-500 hover:text-gray-900'
-                }`}
-              >
-                <span className="text-base">{link.icon}</span>
-                {link.label}
-              </Link>
-            ))}
+          <div className="hidden md:flex items-center p-1 rounded-2xl gap-0.5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link.path);
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200"
+                  style={active
+                    ? { background: 'rgba(99,102,241,0.20)', color: '#a5b4fc', boxShadow: '0 0 12px rgba(99,102,241,0.20)', border: '1px solid rgba(99,102,241,0.25)' }
+                    : { color: 'rgba(148,163,184,0.75)', border: '1px solid transparent' }}
+                  onMouseEnter={(e) => { if (!active) { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = '#e2e8f0'; } }}
+                  onMouseLeave={(e) => { if (!active) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(148,163,184,0.75)'; } }}
+                >
+                  <span style={{ color: active ? '#818cf8' : 'inherit' }}>{link.icon}</span>
+                  {link.label}
+                  {active && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full" style={{ background: '#818cf8', boxShadow: '0 0 6px rgba(129,140,248,0.9)' }} />}
+                </Link>
+              );
+            })}
           </div>
 
           {/* â”€â”€ Right section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
@@ -95,15 +102,16 @@ const Navbar = () => {
             <Link
               to="/dashboard"
               onClick={clearUnreadCount}
-              className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-surface-100 rounded-xl transition-all"
-              title="Notifications"
+              className="relative p-2 rounded-xl transition-all duration-200 flex items-center justify-center"
+              style={{ color: 'rgba(148,163,184,0.7)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#e2e8f0'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(148,163,184,0.7)'; }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-4 h-4 bg-danger-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold leading-none">
+                <span className="absolute top-1 right-1 w-4 h-4 flex items-center justify-center text-[10px] rounded-full font-bold text-white leading-none" style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)', boxShadow: '0 0 8px rgba(239,68,68,0.6)' }}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -113,45 +121,66 @@ const Navbar = () => {
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-xl hover:bg-surface-100 transition-all"
+                className="flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl transition-all duration-200"
+                style={{ border: '1px solid rgba(255,255,255,0.06)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; }}
+                onMouseLeave={(e) => { if (!menuOpen) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)'; } }}
               >
-                <Avatar user={user} size="sm" />
-                <span className="text-sm font-medium text-gray-700 hidden sm:block max-w-[120px] truncate">
+                <div className="relative">
+                  <Avatar user={user} size="sm" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400" style={{ border: '2px solid rgba(6,11,24,0.9)', boxShadow: '0 0 5px rgba(52,211,153,0.7)' }} />
+                </div>
+                <span className="text-sm font-semibold text-white hidden sm:block max-w-[110px] truncate">
                   {user?.name?.split(' ')[0]}
                 </span>
-                <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${menuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                </svg>
+                <span className={`transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`} style={{ color: 'rgba(148,163,184,0.5)' }}>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                </span>
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-card-lg border border-gray-100 py-1.5 z-50 animate-fade-in">
-                  {/* User info */}
-                  <div className="px-4 py-2.5 border-b border-gray-100 mb-1">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{user?.email}</p>
+                <div
+                  className="absolute right-0 mt-2 w-56 rounded-2xl py-2 z-50 overflow-hidden"
+                  style={{ background: 'rgba(10,16,35,0.98)', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.15)', animation: 'scaleIn 0.15s ease-out' }}
+                >
+                  <div className="px-4 py-3 mb-1" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div className="flex items-center gap-2.5">
+                      <Avatar user={user} size="sm" />
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+                        <p className="text-xs truncate" style={{ color: 'rgba(148,163,184,0.55)' }}>{user?.email}</p>
+                      </div>
+                    </div>
+                    {user?.college && (
+                      <div className="mt-2">
+                        <span className="inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: 'rgba(99,102,241,0.18)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)' }}>{user.college}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <Link to={`/profile/${user?._id}`} onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-surface-50 transition-colors">
-                    <ProfileIcon /> My Profile
-                  </Link>
-                  <Link to="/profile/edit" onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-surface-50 transition-colors">
-                    <EditIcon /> Edit Profile
-                  </Link>
-                  <Link to="/dashboard" onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-surface-50 transition-colors">
-                    <DashIcon /> Dashboard
-                  </Link>
-                  <Link to="/settings" onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-surface-50 transition-colors">
-                    <SettingsNavIcon /> Settings
-                  </Link>
+                  {[
+                    { to: `/profile/${user?._id}`, icon: <ProfileIcon />, label: 'My Profile' },
+                    { to: '/profile/edit', icon: <EditIcon />, label: 'Edit Profile' },
+                    { to: '/dashboard', icon: <DashIcon />, label: 'Dashboard' },
+                    { to: '/settings', icon: <SettingsNavIcon />, label: 'Settings' },
+                  ].map(({ to, icon, label }) => (
+                    <Link key={to} to={to} onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150"
+                      style={{ color: 'rgba(226,232,240,0.8)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(99,102,241,0.12)'; e.currentTarget.style.color = '#a5b4fc'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(226,232,240,0.8)'; }}
+                    >
+                      <span style={{ opacity: 0.7 }}>{icon}</span>{label}
+                    </Link>
+                  ))}
 
-                  <div className="border-t border-gray-100 mt-1 pt-1">
+                  <div className="mt-1 pt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                     <button onClick={handleLogout}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-sm text-danger-600 hover:bg-danger-50 transition-colors">
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all duration-150"
+                      style={{ color: 'rgba(248,113,113,0.85)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239,68,68,0.10)'; e.currentTarget.style.color = '#fca5a5'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'rgba(248,113,113,0.85)'; }}
+                    >
                       <SignOutIcon /> Sign Out
                     </button>
                   </div>
@@ -163,26 +192,32 @@ const Navbar = () => {
       </div>
 
       {/* â”€â”€ Mobile bottom nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="md:hidden flex border-t border-gray-100 bg-white">
-        {NAV_LINKS.map((link) => (
-          <Link
-            key={link.path}
-            to={link.path}
-            className={`flex-1 flex flex-col items-center pt-2 pb-2.5 text-xs font-medium transition-all ${
-              isActive(link.path)
-                ? 'text-primary-700'
-                : 'text-gray-400 hover:text-gray-700'
-            }`}
-          >
-            <span className={`text-xl transition-transform ${isActive(link.path) ? 'scale-110' : ''}`}>
-              {link.icon}
-            </span>
-            <span className="mt-0.5">{link.label}</span>
-            {isActive(link.path) && <span className="w-1 h-1 bg-primary-600 rounded-full mt-0.5" />}
-          </Link>
-        ))}
-      </div>
     </nav>
+
+    {/* Mobile bottom nav */}
+    <div
+      className="md:hidden fixed bottom-0 inset-x-0 z-50"
+      style={{ background: 'rgba(6,11,24,0.97)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.08)', paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <div className="flex">
+        {NAV_LINKS.map((link) => {
+          const active = isActive(link.path);
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className="relative flex-1 flex flex-col items-center pt-2 pb-3 text-xs font-semibold transition-all duration-200"
+              style={{ color: active ? '#a5b4fc' : 'rgba(148,163,184,0.5)' }}
+            >
+              {active && <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full" style={{ background: 'linear-gradient(90deg,transparent,#818cf8,transparent)' }} />}
+              <span className={`mb-0.5 transition-all duration-200 ${active ? 'scale-110' : ''}`} style={{ filter: active ? 'drop-shadow(0 0 6px rgba(129,140,248,0.8))' : 'none' }}>{link.icon}</span>
+              <span>{link.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </div>
+    </>
   );
 };
 

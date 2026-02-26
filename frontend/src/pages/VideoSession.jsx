@@ -56,7 +56,11 @@ const VideoSession = () => {
       try {
         const { data } = await videoAPI.getSession(sessionId);
         setSession(data.data);
-        if (data.data.hostId?._id === user._id) setJoined(true);
+        // Host auto-joins and marks the session live
+        if (data.data.hostId?._id === user._id) {
+          try { await videoAPI.joinSession(sessionId); } catch {}
+          setJoined(true);
+        }
       } catch {
         setError('Session not found or has ended');
       }

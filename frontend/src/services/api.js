@@ -55,6 +55,7 @@ export const userAPI = {
 export const postAPI = {
   createPost: (formData) => api.post('/posts/create', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   getFeed: (page = 1) => api.get(`/posts/feed?page=${page}`),
+  getAIFeed: (page = 1) => api.get(`/posts/ai-feed?page=${page}`),
   likePost: (postId) => api.post('/posts/like', { postId }),
   commentPost: (postId, text) => api.post('/posts/comment', { postId, text }),
   deletePost: (id) => api.delete(`/posts/${id}`),

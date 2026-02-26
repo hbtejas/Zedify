@@ -63,12 +63,18 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
   const [likeAnim,     setLikeAnim]     = useState(false);
 
   const handleLike = async () => {
+    // Optimistic update — show result immediately
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount((c) => wasLiked ? c - 1 : c + 1);
+    if (!wasLiked) { setLikeAnim(true); setTimeout(() => setLikeAnim(false), 300); }
     try {
       await postAPI.likePost(post._id);
-      setLiked((v) => !v);
-      setLikeCount((c) => liked ? c - 1 : c + 1);
-      if (!liked) { setLikeAnim(true); setTimeout(() => setLikeAnim(false), 300); }
-    } catch {}
+    } catch {
+      // Revert on failure
+      setLiked(wasLiked);
+      setLikeCount((c) => wasLiked ? c + 1 : c - 1);
+    }
   };
 
   const handleComment = async (e) => {
@@ -235,7 +241,7 @@ const PostCard = ({ post, onDelete, onUpdate }) => {
                 type="text"
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Add a commentâ€¦"
+                placeholder="Add a comment…"
                 className="flex-1 text-sm bg-transparent outline-none text-white"
                 style={{ '--tw-placeholder-color': 'rgba(148,163,184,0.4)' }}
               />

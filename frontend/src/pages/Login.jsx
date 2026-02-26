@@ -90,20 +90,20 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ── Right login form ─────────────────────────────────────────────── */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-surface-50">
+      {/* Right login form */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-10" style={{ background: 'linear-gradient(135deg,#060b18 0%,#0d1526 50%,#0f0c29 100%)' }}>
         <div className="w-full max-w-md animate-slide-up">
           {/* Mobile logo */}
           <div className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow">
-              <span className="text-white font-black text-sm">S²</span>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shadow" style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
+              <span className="text-white font-black text-sm">Z</span>
             </div>
-            <span className="text-gray-900 font-bold text-lg">SkillSwap Campus</span>
+            <span className="text-white font-bold text-lg">Zedify</span>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Welcome back 👋</h2>
-            <p className="text-gray-500 mt-1.5">Sign in to continue to your campus feed</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Welcome back 👋</h2>
+            <p className="mt-1.5" style={{ color: 'rgba(148,163,184,0.7)' }}>Sign in to continue to your campus feed</p>
           </div>
 
           {/* Error alert */}
@@ -182,10 +182,12 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-gray-100 text-center">
-            <p className="text-sm text-gray-500">
-              New to SkillSwap?{' '}
-              <Link to="/register" className="text-primary-600 font-semibold hover:text-primary-700 transition-colors">
+          <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+            <p className="text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
+              New to Zedify?{' '}
+              <Link to="/register" className="font-semibold transition-colors" style={{ color: '#818cf8' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#a5b4fc'}
+                onMouseLeave={(e) => e.currentTarget.style.color = '#818cf8'}>
                 Create a free account
               </Link>
             </p>

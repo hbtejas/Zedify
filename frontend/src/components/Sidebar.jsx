@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
@@ -34,7 +34,7 @@ const Sidebar = () => {
   return (
     <aside className="w-64 flex-shrink-0 hidden lg:flex flex-col gap-4">
 
-      {/* â”€â”€ Profile card â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Profile card Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div style={{ ...GLASS, overflow: 'hidden' }}>
         {/* Gradient banner */}
         <div className="h-16 relative" style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)' }}>
@@ -58,7 +58,7 @@ const Sidebar = () => {
           <Link to={`/profile/${user?._id}`} className="block hover:opacity-80 transition-opacity">
             <p className="font-bold text-white text-sm leading-tight">{user?.name}</p>
             <p className="text-xs mt-0.5" style={{ color: 'rgba(148,163,184,0.6)' }}>{user?.college || 'Student'}</p>
-            {user?.branch && <p className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>{user.branch}{user?.year ? ` Â· Year ${user.year}` : ''}</p>}
+            {user?.branch && <p className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>{user.branch}{user?.year ? ` · Year ${user.year}` : ''}</p>}
           </Link>
 
           {/* Stats */}
@@ -105,7 +105,7 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* â”€â”€ Navigation â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Navigation Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <div style={{ ...GLASS, padding: 8 }}>
         <nav className="space-y-0.5">
           {NAV.map(({ to, label, icon }) => {
@@ -127,7 +127,7 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      {/* â”€â”€ Suggestions â”€â”€ */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Suggestions Ã¢â€â‚¬Ã¢â€â‚¬ */}
       {suggestions.length > 0 && (
         <div style={{ ...GLASS, padding: 16 }}>
           <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'rgba(148,163,184,0.55)', letterSpacing: '0.07em' }}>People to Follow</h3>
@@ -179,3 +179,4 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+

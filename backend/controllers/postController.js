@@ -1,6 +1,7 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
 const Notification = require('../models/Notification');
+const mongoose = require('mongoose');
 const { isDBConnected } = require('../config/db');
 const { getIO, getOnlineUsers } = require('../socket/socketServer');
 const { uploadToCloudinary } = require('../config/cloudinary');
@@ -88,6 +89,11 @@ const getFeed = async (req, res) => {
 const likePost = async (req, res) => {
   try {
     const { postId } = req.body;
+
+    if (!isDBConnected()) {
+      return res.json({ success: true, message: 'Like noted (offline mode)' });
+    }
+
     const post = await Post.findById(postId);
 
     if (!post) {
@@ -201,4 +207,138 @@ const getPost = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getFeed, likePost, commentPost, deletePost, getPost };
+// @desc  AI-powered personalized feed — Instagram-style algorithm
+// @route GET /api/posts/ai-feed
+const getAIFeed = async (req, res) => {
+  try {
+    if (!isDBConnected()) {
+      return res.json({ success: true, data: [], pagination: { page: 1, limit: 15, total: 0, pages: 0 }, meta: { algorithm: 'offline' } });
+    }
+
+    const currentUser = await User.findById(req.user._id);
+    const followingIds = (currentUser.following || []).map((id) => id.toString());
+    const userSkillsWanted  = (currentUser.skillsWanted  || []).map((s) => s.toLowerCase());
+    const userSkillsOffered = (currentUser.skillsOffered || []).map((s) => s.toLowerCase());
+
+    const page  = parseInt(req.query.page)  || 1;
+    const limit = parseInt(req.query.limit) || 15;
+    const POOL  = Math.min(limit * 12, 300);
+
+    // ── 1. Candidate pool ──────────────────────────────────────────────────
+    // Following posts (70% of pool)
+    const followingPool = followingIds.length > 0
+      ? await Post.find({ userId: { $in: followingIds } })
+          .sort({ createdAt: -1 })
+          .limit(Math.ceil(POOL * 0.7))
+          .populate('userId', 'name profilePicture skillsOffered skillsWanted')
+          .populate('comments.userId', 'name profilePicture')
+          .lean()
+      : [];
+
+    // Own posts
+    const ownPosts = await Post.find({ userId: req.user._id })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .populate('userId', 'name profilePicture skillsOffered skillsWanted')
+      .populate('comments.userId', 'name profilePicture')
+      .lean();
+
+    // Exploration: high-engagement posts from strangers (30% of pool)
+    const excludeIds = [...followingIds.map((id) => new mongoose.Types.ObjectId(id)), req.user._id];
+    const explorationRaw = await Post.aggregate([
+      { $match: { userId: { $nin: excludeIds } } },
+      { $addFields: { _engScore: { $add: [{ $size: '$likes' }, { $multiply: [{ $size: '$comments' }, 2] }] } } },
+      { $sort: { _engScore: -1, createdAt: -1 } },
+      { $limit: Math.floor(POOL * 0.3) },
+    ]);
+    const explorationPosts = await Post.populate(explorationRaw, [
+      { path: 'userId', select: 'name profilePicture skillsOffered skillsWanted' },
+      { path: 'comments.userId', select: 'name profilePicture' },
+    ]);
+
+    // Deduplicate
+    const seen = new Set();
+    const candidates = [...ownPosts, ...followingPool, ...explorationPosts].filter((p) => {
+      const id = p._id.toString();
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    // ── 2. Score each candidate ────────────────────────────────────────────
+    const now      = Date.now();
+    const HOUR_MS  = 3600 * 1000;
+    const DECAY    = Math.LN2 / 24; // half-life 24 h
+
+    const scored = candidates.map((post) => {
+      const authorId   = (post.userId?._id || post.userId)?.toString();
+      const isFollowing = followingIds.includes(authorId);
+      const isOwn       = authorId === req.user._id.toString();
+
+      // Engagement (0–1, capped at 50 interactions)
+      const eng    = (post.likes?.length || 0) + (post.comments?.length || 0) * 2;
+      const engS   = Math.min(eng / 50, 1);
+
+      // Recency — exponential decay
+      const hoursAgo = (now - new Date(post.createdAt).getTime()) / HOUR_MS;
+      const recencyS = Math.exp(-DECAY * Math.max(hoursAgo, 0));
+
+      // Skill interest match (author's offered skills overlap user's wanted)
+      const authorOffered = (post.userId?.skillsOffered || []).map((s) => s.toLowerCase());
+      const authorWanted  = (post.userId?.skillsWanted  || []).map((s) => s.toLowerCase());
+      const offerHits = authorOffered.filter((s) => userSkillsWanted.includes(s)).length;
+      const wantHits  = authorWanted.filter((s) => userSkillsOffered.includes(s)).length;
+      const denominator = Math.max(userSkillsWanted.length + userSkillsOffered.length, 1);
+      const skillS  = Math.min((offerHits + wantHits) / denominator, 1);
+
+      // Keyword match in post content
+      const bodyLower  = (post.content || '').toLowerCase();
+      const keywordS   = userSkillsWanted.some((sk) => bodyLower.includes(sk)) ? 0.12 : 0;
+
+      // Boosts
+      const followBoost = isFollowing ? 0.25 : 0;
+      const ownBoost    = isOwn       ? 0.20 : 0;
+
+      const score = engS * 0.30 + recencyS * 0.30 + skillS * 0.20 + followBoost + ownBoost + keywordS;
+
+      // Reason tag
+      let reason = null;
+      if (isOwn) reason = 'own';
+      else if (skillS > 0.3) reason = 'skill-match';
+      else if (isFollowing && recencyS > 0.6) reason = 'following';
+      else if (engS > 0.5) reason = 'trending';
+      else if (recencyS > 0.85) reason = 'recent';
+      else reason = 'explore';
+
+      return { ...post, _aiScore: Math.round(score * 1000) / 1000, _aiReason: reason };
+    });
+
+    // ── 3. Sort ────────────────────────────────────────────────────────────
+    scored.sort((a, b) => b._aiScore - a._aiScore);
+
+    // ── 4. Diversity — max 3 posts per author ─────────────────────────────
+    const userCount = {};
+    const diverse = scored.filter((post) => {
+      const aid = (post.userId?._id || post.userId)?.toString();
+      if (!userCount[aid]) userCount[aid] = 0;
+      if (userCount[aid] >= 3) return false;
+      userCount[aid]++;
+      return true;
+    });
+
+    // ── 5. Paginate ────────────────────────────────────────────────────────
+    const total    = diverse.length;
+    const paginated = diverse.slice((page - 1) * limit, page * limit);
+
+    res.json({
+      success: true,
+      data: paginated,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+      meta: { algorithm: 'engagement-recency-skill-match-v2', scored: scored.length },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { createPost, getFeed, getAIFeed, likePost, commentPost, deletePost, getPost };
