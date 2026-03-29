@@ -16,6 +16,7 @@ import VideoSessions from './pages/VideoSessions';
 import Exchange from './pages/Exchange';
 import EditProfile from './pages/EditProfile';
 import Settings from './pages/Settings';
+import Network from './pages/Network';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/video" element={<PrivateRoute><VideoSessions /></PrivateRoute>} />
             <Route path="/video/session/:sessionId" element={<PrivateRoute><VideoSession /></PrivateRoute>} />
             <Route path="/exchange" element={<PrivateRoute><Exchange /></PrivateRoute>} />
+            <Route path="/network" element={<PrivateRoute><Network /></PrivateRoute>} />
             <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
             {/* Fallback */}

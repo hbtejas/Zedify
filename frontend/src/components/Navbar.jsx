@@ -16,9 +16,9 @@ const SettingsNavIcon = () => <svg className="w-4 h-4" fill="none" stroke="curre
 
 const NAV_LINKS = [
   { path: '/feed',     label: 'Feed',     icon: <FeedIcon /> },
+  { path: '/network',  label: 'Connect',  icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5V4h-5m-9 16H2V4h5m8 6l-3-3-3 3M8 14l3 3 3-3"/></svg>},
   { path: '/chat',     label: 'Chat',     icon: <ChatIcon /> },
-  { path: '/video',    label: 'Live',     icon: <VideoIcon /> },
-  { path: '/exchange', label: 'Exchange', icon: <ExchIcon /> },
+  { path: '/exchange', label: 'Swap',     icon: <ExchIcon /> },
 ];
 
 const Avatar = ({ user, size = 'sm' }) => {
