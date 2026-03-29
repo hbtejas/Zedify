@@ -55,10 +55,10 @@ const Login = () => {
         {/* Logo */}
         <div className="relative">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-white rounded-2xl flex items-center justify-center shadow-lg">
-              <span className="text-primary-600 font-black text-lg">S²</span>
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-xlg" style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
+              <span className="text-white font-black text-xl">Z</span>
             </div>
-            <span className="text-white font-bold text-xl">SkillSwap Campus</span>
+            <span className="text-white font-bold text-xl">Zedify</span>
           </div>
         </div>
 

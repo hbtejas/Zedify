@@ -61,89 +61,74 @@ const IconRefresh = () => (
   </svg>
 );
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Hero Section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* -------------------------------- Hero Section -------------------------------- */
 const HeroSection = ({ user, onOpenPost }) => {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = user?.name?.split(' ')[0] || 'there';
 
   const stats = [
-    { label: 'Skills Offered', value: user?.skillsOffered?.length || 0 },
-    { label: 'Skills Wanted',  value: user?.skillsWanted?.length  || 0 },
-    { label: 'Followers',      value: user?.followers?.length     || 0 },
-    { label: 'Following',      value: user?.following?.length     || 0 },
+    { label: 'Network', value: (user?.followers?.length || 0) + (user?.following?.length || 0) },
+    { label: 'Teaching', value: user?.skillsOffered?.length || 0 },
+    { label: 'Learning', value: user?.skillsWanted?.length || 0 },
   ];
 
   return (
-    <div className="relative rounded-3xl overflow-hidden mb-6" style={{ ...GLASS }}>
-      <div className="absolute top-0 left-0 right-0 h-px"
-        style={{ background: 'linear-gradient(90deg,transparent,rgba(99,102,241,0.6),rgba(124,58,237,0.5),transparent)' }} />
-      <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(79,70,229,0.18) 0%,transparent 70%)', filter: 'blur(50px)' }} />
-      <div className="absolute -bottom-12 -left-12 w-56 h-56 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(37,99,235,0.12) 0%,transparent 70%)', filter: 'blur(40px)' }} />
+    <div className="relative rounded-[2rem] overflow-hidden mb-6 p-[2px] border border-white/10" 
+         style={{ background: 'linear-gradient(145deg, rgba(30,35,50,0.8) 0%, rgba(15,20,30,0.9) 100%)', boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
+         
+      <div className="absolute top-[-50%] right-[-10%] w-[80%] h-[150%] bg-blue-600/30 rounded-full blur-[90px] pointer-events-none mix-blend-screen" />
+      <div className="absolute bottom-[-30%] left-[-20%] w-[60%] h-[120%] bg-fuchsia-600/25 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
+      <div className="absolute top-[20%] left-[30%] w-[40%] h-[60%] bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none mix-blend-screen" />
+      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
 
-      <div className="relative px-6 py-7">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-          <div className="relative flex-shrink-0">
+      <div className="relative px-6 py-8 sm:px-8 sm:py-10 flex flex-col md:flex-row items-center gap-8 rounded-[2rem] bg-gray-950/20 backdrop-blur-3xl z-10">
+        
+        {/* User Card Area */}
+        <div className="flex-shrink-0 relative group">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-60 transition duration-500" />
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-[2.5rem] overflow-hidden border-2 border-white/10" style={{ background: '#0a0f1e' }}>
             {user?.profilePicture ? (
-              <img src={user.profilePicture} alt={user.name}
-                className="w-20 h-20 rounded-2xl object-cover"
-                style={{ border: '2px solid rgba(99,102,241,0.4)', boxShadow: '0 0 24px rgba(99,102,241,0.25)' }} />
+              <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-bold"
-                style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow: '0 0 24px rgba(99,102,241,0.3)' }}>
+              <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white bg-gradient-to-br from-indigo-500 to-purple-600">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
             )}
-            <span className="absolute -bottom-1.5 -right-1.5 w-5 h-5 rounded-full bg-emerald-400"
-              style={{ border: '2px solid rgba(6,11,24,0.9)', boxShadow: '0 0 8px rgba(52,211,153,0.6)' }} />
+            <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-400 border-[3px] border-[#0a0f1e] shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
           </div>
-
-          <div className="flex-1">
-            <p className="text-sm font-medium mb-0.5" style={{ color: 'rgba(148,163,184,0.7)' }}>{greeting},</p>
-            <h1 className="text-white text-2xl sm:text-3xl font-bold tracking-tight leading-none mb-1">
-              {firstName} 👋
-            </h1>
-            <p className="text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
-              {user?.college || 'Campus Student'}{user?.branch ? ` · ${user.branch}` : ''}{user?.year ? ` · Year ${user.year}` : ''}
-            </p>
-          </div>
-
-          <button
-            onClick={onOpenPost}
-            className="flex-shrink-0 flex items-center gap-2 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-            style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow: '0 6px 20px rgba(99,102,241,0.4)' }}>
-            <IconSend />
-            Share Update
-          </button>
         </div>
 
-        <div className="flex flex-wrap gap-3 mt-6">
-          {stats.map((s) => (
-            <div key={s.label} className="flex items-center gap-2.5 px-4 py-2 rounded-xl flex-shrink-0"
-              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)' }}>
-              <span className="text-white font-bold text-lg leading-none">{s.value}</span>
-              <span className="text-xs font-medium" style={{ color: 'rgba(148,163,184,0.65)' }}>{s.label}</span>
+        {/* Content Area */}
+        <div className="flex-1 text-center md:text-left z-10 w-full min-w-0">
+          <p className="text-indigo-300 font-semibold tracking-wide text-sm uppercase mb-1 flex items-center justify-center md:justify-start gap-2">
+            <span className="w-2 h-2 rounded-full bg-indigo-400" /> {greeting}
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2 truncate">
+            Stay hungry, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{firstName}</span>.
+          </h1>
+          <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-lg mx-auto md:mx-0">
+            {user?.college ? `Representing ${user.college}` : 'Building your campus network'}. 
+            Share what you're working on and exchange skills today!
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center gap-4">
+            <button
+              onClick={onOpenPost}
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-[0_8px_16px_-4px_rgba(99,102,241,0.5)] active:scale-95"
+            >
+              <IconSend /> Create Update
+            </button>
+            <div className="flex gap-4 px-4 py-2 rounded-xl bg-white/5 border border-white/5">
+              {stats.map((s, idx) => (
+                <div key={idx} className="flex flex-col items-center px-3" style={idx > 0 ? { borderLeft: '1px solid rgba(255,255,255,0.05)' } : {}}>
+                  <span className="text-white font-black text-lg leading-none">{s.value}</span>
+                  <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-1">{s.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        {user?.skillsOffered?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4">
-            {user.skillsOffered.slice(0, 6).map((skill) => (
-              <span key={skill} className="text-xs font-medium text-white px-3 py-1 rounded-full"
-                style={{ background: 'rgba(99,102,241,0.25)', border: '1px solid rgba(99,102,241,0.35)' }}>
-                {skill}
-              </span>
-            ))}
-            {user.skillsOffered.length > 6 && (
-              <span className="text-xs font-medium px-3 py-1" style={{ color: 'rgba(148,163,184,0.5)' }}>
-                +{user.skillsOffered.length - 6} more
-              </span>
-            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

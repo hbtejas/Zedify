@@ -202,12 +202,18 @@ const HERO_CARDS = [
 ];
 
 const HeroSection = () => (
-  <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16" style={{ background: '#060b1a' }}>
-    <div className="absolute inset-0" style={{
-      background: 'radial-gradient(ellipse 80% 60% at 20% 40%,rgba(37,99,235,0.35) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 20%,rgba(99,102,241,0.30) 0%,transparent 55%),radial-gradient(ellipse 50% 60% at 60% 80%,rgba(168,85,247,0.20) 0%,transparent 55%)'
-    }} />
-    <div className="absolute inset-0 opacity-[0.04]"
-      style={{ backgroundImage:'linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px)', backgroundSize:'60px 60px' }} />
+  <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-16 bg-[#040814]">
+    {/* Ultra-Vibrant Mesh Gradient Background */}
+    <div className="absolute inset-0 z-0">
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-600/40 rounded-full blur-[120px] mix-blend-screen animate-pulse animation-delay-1000" />
+      <div className="absolute top-[20%] right-[-10%] w-[40%] h-[60%] bg-fuchsia-600/30 rounded-full blur-[130px] mix-blend-screen animate-pulse" />
+      <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[50%] bg-emerald-500/20 rounded-full blur-[100px] mix-blend-screen" />
+      <div className="absolute top-[30%] left-[30%] w-[40%] h-[40%] bg-indigo-600/30 rounded-full blur-[140px] mix-blend-screen animate-spin-slow" />
+    </div>
+
+    {/* Structural Grid */}
+    <div className="absolute inset-0 opacity-[0.06] z-0"
+      style={{ backgroundImage:'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize:'40px 40px' }} />
     <Orb size="500px" color="radial-gradient(circle,#2563eb,#4f46e5)" top="-10%" left="-5%"  delay="0s"   duration="10s" blur="120px" opacity="0.25" />
     <Orb size="400px" color="radial-gradient(circle,#7c3aed,#a855f7)" top="40%"  left="60%"  delay="3s"   duration="12s" blur="100px" opacity="0.20" />
     <Orb size="300px" color="radial-gradient(circle,#0e7490,#06b6d4)" top="70%"  left="-5%"  delay="1.5s" duration="9s"  blur="90px"  opacity="0.20" />
@@ -237,19 +243,19 @@ const HeroSection = () => (
         <span className="w-2 h-2 bg-emerald-400 rounded-full" style={{ animation:'pulse 2s ease-in-out infinite' }} />
         <span className="text-white/80 text-sm font-semibold tracking-wide">10,000+ students &mdash; 500+ colleges</span>
       </div>
-      <h1 className="font-black text-5xl sm:text-6xl lg:text-8xl leading-[1.0] tracking-tight mb-6">
-        <span className="text-white">Learn More.</span><br />
-        <span style={{ backgroundImage:'linear-gradient(135deg,#60a5fa 0%,#818cf8 35%,#c084fc 70%,#e879f9 100%)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent', backgroundClip:'text' }}>
+      <h1 className="font-black text-6xl sm:text-7xl lg:text-8xl leading-[1.0] tracking-tight mb-8">
+        <span className="text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.2)]">Learn More.</span><br />
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-fuchsia-400 drop-shadow-[0_0_30px_rgba(99,102,241,0.5)]">
           Teach More.
         </span><br />
-        <span className="text-white/50">Pay Nothing.</span>
+        <span className="text-white/30">Pay Nothing.</span>
       </h1>
-      <p className="text-white/60 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-        Zedify connects college students for peer-to-peer skill exchanges. Teach what you know, learn what you need — all in one beautiful platform.
+      <p className="text-white/80 text-xl sm:text-2xl max-w-3xl mx-auto mb-12 leading-relaxed font-medium" style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>
+        Zedify connects college students for peer-to-peer skill exchanges. Teach what you know, learn what you need — all in one visually stunning platform.
       </p>
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
-        <Link to="/register" className="group relative flex items-center gap-2.5 font-black text-white px-10 py-4 rounded-2xl overflow-hidden text-base active:scale-95 transition-transform duration-150"
-          style={{ background:'linear-gradient(135deg,#1d4ed8,#4f46e5,#7c3aed)', boxShadow:'0 0 30px rgba(37,99,235,0.5)' }}>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-14">
+        <Link to="/register" className="group relative flex items-center gap-3 font-extrabold text-white px-12 py-5 rounded-2xl overflow-hidden text-lg hover:scale-105 active:scale-95 transition-all outline-none border border-white/20 hover:border-white/50"
+          style={{ background:'linear-gradient(135deg, rgba(37,99,235,0.4), rgba(124,58,237,0.6))', backdropFilter: 'blur(10px)', boxShadow:'0 0 40px rgba(124,58,237,0.6), inset 0 0 20px rgba(255,255,255,0.2)' }}>
           <span className="relative z-10 flex items-center gap-2">
             Start for Free
             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -281,14 +287,13 @@ const HeroSection = () => (
 
 const StatsSection = () => {
   const stats = [
-    { n:10000, s:'+', label:'Students Registered', color:'#3b82f6' },
-    { n:500,   s:'+', label:'Colleges Connected',  color:'#10b981' },
+    { n:10000, s:'+', label:'Students Registered', color:'#6366f1' },
+    { n:500,   s:'+', label:'Colleges Connected',  color:'#8b5cf6' },
     { n:25000, s:'+', label:'Skills Exchanged',    color:'#a855f7' },
-    { n:'4.9', s:'', label:'Average Rating',      color:'#f59e0b', raw:true },
+    { n:'4.9', s:'', label:'Average Rating',      color:'#c084fc', raw:true },
   ];
   return (
-    <section className="relative py-20 overflow-hidden" style={{ background:'#0a0f1e' }}>
-      <div className="absolute inset-0" style={{ background:'radial-gradient(ellipse 80% 100% at 50% 0%,rgba(37,99,235,0.10),transparent)' }} />
+    <section className="relative border-y border-white/5 py-16" style={{ background:'rgba(255,255,255,0.01)' }}>
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((s, i) => (
@@ -330,7 +335,7 @@ const Feature3DCard = ({ icon, title, desc, glow, border, bg }) => {
 };
 
 const FeaturesSection = () => (
-  <section id="features" className="py-28 relative overflow-hidden" style={{ background:'#080d1a' }}>
+  <section id="features" className="py-28 relative overflow-hidden">
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-20 reveal">
         <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-5 border border-blue-400/20">
@@ -377,7 +382,7 @@ const STEPS = [
 ];
 
 const HowItWorks = () => (
-  <section id="how-it-works" className="py-28 relative overflow-hidden" style={{ background:'#060b18' }}>
+  <section id="how-it-works" className="py-28 relative overflow-hidden">
     <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-20 reveal">
         <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-5 border border-emerald-400/20">
@@ -425,7 +430,7 @@ const SKILLS = [
 ];
 
 const SkillsSection = () => (
-  <section id="skills" className="py-28 overflow-hidden" style={{ background:'#08101a' }}>
+  <section id="skills" className="py-28 overflow-hidden bg-white/[0.01]">
     <div className="max-w-6xl mx-auto px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-16 reveal">
         <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-5 border border-amber-400/20">
@@ -442,7 +447,7 @@ const SkillsSection = () => (
           const [color, bg] = SKILL_COLORS[i % SKILL_COLORS.length];
           return (
             <div key={skill} className="card-3d cursor-default rounded-xl px-5 py-2.5 font-bold text-sm transition-all duration-200"
-              style={{ background:`${bg}80`, border:`1px solid ${color}40`, color }}
+              style={{ background:`${bg}40`, border:`1px solid ${color}40`, color }}
               onMouseEnter={(e) => { e.currentTarget.style.boxShadow = `0 0 20px ${color}40`; }}
               onMouseLeave={(e) => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.transform = ''; }}>
               {skill}
@@ -493,7 +498,7 @@ const TestimonialCard = ({ t, delay }) => {
 };
 
 const TestimonialsSection = () => (
-  <section id="testimonials" className="py-28 relative overflow-hidden" style={{ background:'#060b18' }}>
+  <section id="testimonials" className="py-28 relative overflow-hidden">
     <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
       <div className="text-center max-w-2xl mx-auto mb-20 reveal">
         <div className="inline-flex items-center gap-2 glass rounded-full px-5 py-2 mb-5 border border-violet-400/20">
@@ -514,7 +519,7 @@ const TestimonialsSection = () => (
 const CtaSection = () => {
   const tilt = useTilt(5);
   return (
-    <section className="py-28 relative overflow-hidden" style={{ background:'#080d1a' }}>
+    <section className="py-28 relative overflow-hidden border-y border-white/5 bg-white/[0.01]">
       <Orb size="600px" color="radial-gradient(circle,#2563eb,#7c3aed)" top="-20%" left="10%" delay="0s" duration="15s" blur="130px" opacity="0.15" />
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <div {...tilt} className="card-3d reveal glass-card rounded-3xl px-8 py-16 overflow-hidden"
@@ -599,7 +604,7 @@ const LandingPage = () => {
     return () => window.removeEventListener('scroll', fn);
   }, []);
   return (
-    <div className="font-sans antialiased" style={{ background:'#060b18' }}>
+    <div className="font-sans antialiased bg-z-main">
       <LandingNav scrolled={scrolled} />
       <main>
         <HeroSection />

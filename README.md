@@ -1,6 +1,11 @@
-# SkillSwap Campus 🎓
+# Zedify 🎓
 
-A full-stack, production-ready real-time student skill exchange social platform — combining LinkedIn profiles, Instagram feeds, WhatsApp chat, and Zoom live video.
+[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A full-stack, production-ready real-time student skill exchange social platform — combining LinkedIn profiles, Instagram feeds, WhatsApp chat, and Zoom live video. 
+
+**Zedify is proudly an Open Source project.** We welcome contributions from developers, designers, and students all around the world to help build the ultimate skill-sharing ecosystem!
 
 ---
 
@@ -267,6 +272,14 @@ Frontend starts on: `http://localhost:3000`
 
 ---
 
+## 🤝 Contributing (Open Source)
+
+Zedify is an **Open Source** project. We encourage everyone to fork the repository, submit pull requests, open issues, and help us improve the platform! 
+
+## 📝 License
+
+This project is licensed under the MIT License. You are free to use, modify, and distribute this software.
+
 ## 📧 Support
 
-Built with ❤️ — SkillSwap Campus helps students connect, share knowledge, and grow together.
+Built with ❤️ — Zedify helps students connect, share knowledge, and grow together.
