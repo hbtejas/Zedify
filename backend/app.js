@@ -10,6 +10,7 @@ const postRoutes    = require('./routes/postRoutes');
 const chatRoutes    = require('./routes/chatRoutes');
 const videoRoutes   = require('./routes/videoRoutes');
 const exchangeRoutes = require('./routes/exchangeRoutes');
+const reportRoutes   = require('./routes/reportRoutes');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/posts',    postRoutes);
 app.use('/api/chat',     chatRoutes);
 app.use('/api/video',    videoRoutes);
 app.use('/api/exchange', exchangeRoutes);
+app.use('/api/reports',  reportRoutes);
 
 // ── Health check ────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {

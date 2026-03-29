@@ -92,4 +92,10 @@ export const exchangeAPI = {
   completeExchange: (id) => api.put(`/exchange/complete/${id}`),
 };
 
+// ─── Reports ───────────────────────────────────────────────────────────────
+export const reportAPI = {
+  createReport: (data) => api.post('/reports/create', data),
+  getMyReports: () => api.get('/reports/my'),
+};
+
 export default api;
