@@ -113,4 +113,52 @@ const getActiveSessions = async (req, res) => {
   }
 };
 
-module.exports = { createSession, getSession, joinSession, endSession, getActiveSessions };
+// @desc Request to join a private session
+// @route POST /api/video/request/:id
+const requestToJoin = async (req, res) => {
+  try {
+    const session = await VideoSession.findOne({ sessionId: req.params.id });
+    if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+    
+    await VideoSession.findByIdAndUpdate(session._id, {
+      $addToSet: { waitingList: req.user._id }
+    });
+    
+    res.json({ success: true, message: 'Request sent to host' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc Approve a pending participant (Host only)
+// @route POST /api/video/approve/:id
+const approveParticipant = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const session = await VideoSession.findOne({ sessionId: req.params.id });
+    
+    if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+    if (session.hostId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Only host can approve participants' });
+    }
+    
+    await VideoSession.findByIdAndUpdate(session._id, {
+      $pull: { waitingList: userId },
+      $addToSet: { allowedUsers: userId }
+    });
+    
+    res.json({ success: true, message: 'Participant approved' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { 
+  createSession, 
+  getSession, 
+  joinSession, 
+  endSession, 
+  getActiveSessions,
+  requestToJoin,
+  approveParticipant 
+};

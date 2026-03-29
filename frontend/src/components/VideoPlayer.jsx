@@ -217,7 +217,7 @@ const FloatingReaction = ({ emoji, x, id, onDone }) => {
 /* ========================================================================= */
 /*  Main Component                                                           */
 /* ========================================================================= */
-const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
+const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprove }) => {
   const { user } = useAuth();
   const { socket } = useSocket();
 
@@ -744,6 +744,23 @@ const VideoPlayer = ({ sessionId, isHost, onEnd }) => {
           {panel === 'participants' && (<>
             <SBHeader title="Participants" icon={<UsersIcon/>} badge={1 + totalPeers} onClose={() => setPanel(null)}/>
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
+              
+              {isHost && pendingApprovals.length > 0 && (
+                 <div className="mb-4">
+                    <SBSection>Waiting Room ({pendingApprovals.length})</SBSection>
+                    {pendingApprovals.map((p, i) => (
+                       <div key={i} className="flex items-center justify-between p-2 rounded-xl bg-amber-500/5 border border-amber-500/10 mb-2">
+                          <div className="flex items-center gap-2">
+                             <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center font-bold text-amber-500 text-xs">{(p.name || '').charAt(0)}</div>
+                             <span className="text-xs text-white/80 font-semibold">{p.name || 'Anonymous'}</span>
+                          </div>
+                          <button onClick={() => onApprove(p._id || p)} className="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-lg text-[10px] font-bold text-white transition-all active:scale-95">Approve</button>
+                       </div>
+                    ))}
+                    <div className="w-full h-px bg-white/5 my-3" />
+                 </div>
+              )}
+
               <PRow name={user.name} role={isHost ? 'Host · You' : 'You'} grad="linear-gradient(135deg,#4f46e5,#7c3aed)"
                 audioOff={!audioEnabled} videoOff={!videoEnabled} handUp={handRaised} highlight={isHost}/>
               {remoteEntries.map(([sid, { userName }]) => {

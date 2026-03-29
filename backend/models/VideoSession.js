@@ -33,6 +33,7 @@ const videoSessionSchema = new mongoose.Schema(
       default: false,
     },
     allowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    waitingList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );
