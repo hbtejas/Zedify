@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 // @route POST /api/video/create-session
 const createSession = async (req, res) => {
   try {
-    const { skillName, description, isPrivate, allowedUsers } = req.body;
+    const { skillName, description, startTime, endTime } = req.body;
 
     if (!skillName) {
       return res.status(400).json({ success: false, message: 'Skill name is required' });
@@ -17,12 +17,13 @@ const createSession = async (req, res) => {
       skillName,
       description: description || '',
       status: 'waiting',
-      isPrivate: isPrivate || false,
-      allowedUsers: allowedUsers || [],
+      startTime: startTime ? new Date(startTime) : new Date(),
+      endTime: endTime ? new Date(endTime) : null,
+      participants: [req.user._id],
+      allowedUsers: [req.user._id],
     });
 
     const populated = await VideoSession.findById(session._id).populate('hostId', 'name profilePicture');
-
     res.status(201).json({ success: true, data: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -35,12 +36,12 @@ const getSession = async (req, res) => {
   try {
     const session = await VideoSession.findOne({ sessionId: req.params.id })
       .populate('hostId', 'name profilePicture')
-      .populate('participants', 'name profilePicture');
+      .populate('participants', 'name profilePicture')
+      .populate('waitingList', 'name profilePicture');
 
     if (!session) {
       return res.status(404).json({ success: false, message: 'Session not found' });
     }
-
     res.json({ success: true, data: session });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -52,7 +53,6 @@ const getSession = async (req, res) => {
 const joinSession = async (req, res) => {
   try {
     const session = await VideoSession.findOne({ sessionId: req.params.id });
-
     if (!session) {
       return res.status(404).json({ success: false, message: 'Session not found' });
     }
@@ -60,11 +60,25 @@ const joinSession = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Session has ended' });
     }
 
-    // Permission check
-    if (session.isPrivate && 
-        session.hostId.toString() !== req.user._id.toString() && 
-        !(session.allowedUsers || []).map(u => u.toString()).includes(req.user._id.toString())) {
-      return res.status(403).json({ success: false, message: 'Access denied: this is a private session.' });
+    const isHost = session.hostId.toString() === req.user._id.toString();
+    const isAllowed = isHost || (session.allowedUsers || []).map(u => u.toString()).includes(req.user._id.toString());
+
+    if (!isAllowed) {
+      return res.status(403).json({ success: false, message: 'Access denied: private session' });
+    }
+
+    // Scheduling check
+    const now = new Date();
+    if (session.startTime && now < new Date(session.startTime) && !isHost) {
+      return res.status(403).json({ success: false, message: `Session starts at ${new Date(session.startTime).toLocaleString()}`, code: 'NOT_STARTED' });
+    }
+    if (session.endTime && now > new Date(session.endTime)) {
+      return res.status(403).json({ success: false, message: 'Session has already ended', code: 'EXPIRED' });
+    }
+
+    // Locking check
+    if (session.isLocked && !isHost) {
+       return res.status(403).json({ success: false, message: 'Session is locked by host' });
     }
 
     await VideoSession.findByIdAndUpdate(session._id, {
@@ -119,7 +133,16 @@ const requestToJoin = async (req, res) => {
   try {
     const session = await VideoSession.findOne({ sessionId: req.params.id });
     if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
-    
+
+    if (session.isLocked && session.hostId.toString() !== req.user._id.toString() && !session.allowedUsers.includes(req.user._id)) {
+       return res.status(403).json({ success: false, message: 'Session is locked by host' });
+    }
+
+    const now = new Date();
+    if (session.endTime && now > new Date(session.endTime)) {
+      return res.status(403).json({ success: false, message: 'Session has already ended', code: 'EXPIRED' });
+    }
+
     await VideoSession.findByIdAndUpdate(session._id, {
       $addToSet: { waitingList: req.user._id }
     });

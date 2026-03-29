@@ -36,6 +36,8 @@ const videoSessionSchema = new mongoose.Schema(
     waitingList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     isLocked: { type: Boolean, default: false },
     isChatDisabled: { type: Boolean, default: false },
+    startTime: { type: Date },
+    endTime: { type: Date },
   },
   { timestamps: true }
 );
