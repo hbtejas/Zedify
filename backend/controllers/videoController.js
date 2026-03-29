@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 // @route POST /api/video/create-session
 const createSession = async (req, res) => {
   try {
-    const { skillName, description } = req.body;
+    const { skillName, description, isPrivate, allowedUsers } = req.body;
 
     if (!skillName) {
       return res.status(400).json({ success: false, message: 'Skill name is required' });
@@ -17,6 +17,8 @@ const createSession = async (req, res) => {
       skillName,
       description: description || '',
       status: 'waiting',
+      isPrivate: isPrivate || false,
+      allowedUsers: allowedUsers || [],
     });
 
     const populated = await VideoSession.findById(session._id).populate('hostId', 'name profilePicture');
@@ -56,6 +58,13 @@ const joinSession = async (req, res) => {
     }
     if (session.status === 'ended') {
       return res.status(400).json({ success: false, message: 'Session has ended' });
+    }
+
+    // Permission check
+    if (session.isPrivate && 
+        session.hostId.toString() !== req.user._id.toString() && 
+        !(session.allowedUsers || []).map(u => u.toString()).includes(req.user._id.toString())) {
+      return res.status(403).json({ success: false, message: 'Access denied: this is a private session.' });
     }
 
     await VideoSession.findByIdAndUpdate(session._id, {

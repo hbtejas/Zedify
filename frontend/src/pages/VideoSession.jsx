@@ -48,8 +48,9 @@ const VideoSession = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [joined, setJoined] = useState(false);
-  const [joining, setJoining] = useState(false);
   const [error, setError] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [rulesAgreed, setRulesAgreed] = useState(false);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -61,8 +62,8 @@ const VideoSession = () => {
           try { await videoAPI.joinSession(sessionId); } catch {}
           setJoined(true);
         }
-      } catch {
-        setError('Session not found or has ended');
+      } catch (err) {
+        setError(err.response?.data?.message || 'Session not found or has ended');
       }
       setLoading(false);
     };
@@ -70,6 +71,7 @@ const VideoSession = () => {
   }, [sessionId, user._id]);
 
   const handleJoin = async () => {
+    if (!rulesAgreed) return;
     setJoining(true);
     try {
       await videoAPI.joinSession(sessionId);
@@ -96,7 +98,7 @@ const VideoSession = () => {
       <div className="min-h-screen flex items-center justify-center" style={{ background: BG }}>
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-          <p className="text-white/50 text-sm">Loading session</p>
+          <p className="text-white/50 text-sm font-medium tracking-wide">Securing connection...</p>
         </div>
       </div>
     );
@@ -105,17 +107,17 @@ const VideoSession = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ background: BG }}>
-        <div className="text-center max-w-sm w-full rounded-3xl p-8" style={GLASS}>
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-            style={{ background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)' }}>
-            <span className="text-2xl text-red-400">!</span>
+        <div className="text-center max-w-sm w-full rounded-3xl p-10 page-fade-in" style={GLASS}>
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+            style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)', boxShadow:'0 0 30px rgba(239,68,68,0.1)' }}>
+            <span className="text-4xl text-red-500 font-bold">!</span>
           </div>
-          <h2 className="text-white font-bold text-xl mb-2">Session Unavailable</h2>
-          <p className="text-sm mb-6" style={{ color:'rgba(148,163,184,0.7)' }}>{error}</p>
+          <h2 className="text-white font-black text-2xl mb-3">Entrance Denied</h2>
+          <p className="text-sm mb-8 leading-relaxed" style={{ color:'rgba(148,163,184,0.7)' }}>{error}</p>
           <button onClick={() => navigate('/video')}
-            className="w-full py-3 rounded-2xl text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background:'rgba(99,102,241,0.7)', border:'1px solid rgba(99,102,241,0.4)' }}>
-            <ArrowLeftIcon2 /> Back to Sessions
+            className="w-full py-4 rounded-2xl text-white font-bold text-sm flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+            style={{ background:'linear-gradient(135deg,rgba(255,255,255,0.1),rgba(255,255,255,0.05))', border:'1px solid rgba(255,255,255,0.15)' }}>
+            <ArrowLeftIcon2 /> Return to Portal
           </button>
         </div>
       </div>
@@ -128,32 +130,41 @@ const VideoSession = () => {
       <div className="flex flex-col" style={{ height:'100vh', overflow:'hidden', background: BG }}>
         {/* Top bar */}
         <div className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 z-10"
-          style={{ background:'rgba(0,0,0,0.5)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,0.07)' }}>
-          <div className="flex items-center gap-3">
+          style={{ background:'rgba(0,0,0,0.6)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
+          <div className="flex items-center gap-4">
             <button onClick={() => navigate('/video')}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-white/60 hover:text-white transition-colors"
-              style={{ background:'rgba(255,255,255,0.08)' }}>
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white/60 hover:text-white transition-all hover:bg-white/10"
+              style={{ border:'1px solid rgba(255,255,255,0.08)' }}>
               <ArrowLeftIcon2 />
             </button>
-            <div>
+            <div className="relative">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                <span className="text-white font-semibold text-sm">{session?.skillName}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold text-red-300"
-                  style={{ background:'rgba(220,38,38,0.2)', border:'1px solid rgba(220,38,38,0.3)' }}>LIVE</span>
+                <span className="text-white font-bold text-sm tracking-tight">{session?.skillName}</span>
+                <span className="text-[9px] px-2 py-0.5 rounded-full font-black text-blue-400 border border-blue-500/30"
+                  style={{ background:'rgba(59,130,246,0.1)' }}>SECURE</span>
               </div>
-              <p className="text-white/40 text-xs">Hosted by {session?.hostId?.name}</p>
+              <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest mt-0.5">Session controlled by {session?.hostId?.name}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-xs text-white/50">
-              <UsersIcon2 /> {session?.participants?.length || 0}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex -space-x-2 mr-2">
+               {session?.participants?.slice(0, 3).map((p, i) => (
+                  <div key={i} className="w-7 h-7 rounded-lg border-2 border-[#0a1023] bg-indigo-500 flex items-center justify-center text-[10px] font-bold text-white overflow-hidden">
+                    {p.profilePicture ? <img src={p.profilePicture} className="w-full h-full object-cover" /> : p.name.charAt(0)}
+                  </div>
+               ))}
+               {session?.participants?.length > 3 && (
+                 <div className="w-7 h-7 rounded-lg border-2 border-[#0a1023] bg-slate-800 flex items-center justify-center text-[8px] font-bold text-white">
+                   +{session.participants.length - 3}
+                 </div>
+               )}
+            </div>
             {isHost && (
               <button onClick={handleEnd}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-white flex items-center gap-1.5 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                style={{ background:'rgba(220,38,38,0.8)', border:'1px solid rgba(239,68,68,0.4)' }}>
-                End Session
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white flex items-center gap-2 transition-all hover:scale-[1.05] active:scale-[0.95]"
+                style={{ background:'linear-gradient(135deg,#ef4444,#dc2626)', boxShadow:'0 0 20px rgba(239,68,68,0.2)' }}>
+                Terminate Session
               </button>
             )}
           </div>
@@ -170,92 +181,100 @@ const VideoSession = () => {
   /*  Pre-join lobby  */
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: BG }}>
-      {/* Ambient orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background:'radial-gradient(circle,rgba(79,70,229,0.15) 0%,transparent 70%)', filter:'blur(60px)' }} />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none"
-        style={{ background:'radial-gradient(circle,rgba(37,99,235,0.12) 0%,transparent 70%)', filter:'blur(50px)' }} />
+      {/* Ambient glass orbs */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full pointer-events-none"
+        style={{ background:'radial-gradient(circle,rgba(99,102,241,0.15) 0%,transparent 70%)', filter:'blur(100px)' }} />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full pointer-events-none"
+        style={{ background:'radial-gradient(circle,rgba(236,72,153,0.1) 0%,transparent 70%)', filter:'blur(100px)' }} />
 
-      <div className="w-full max-w-md z-10">
-        {/* Host avatar card */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-bold text-white mb-3"
-            style={{ background:'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow:'0 8px 32px rgba(99,102,241,0.4)' }}>
-            {session?.skillName?.charAt(0)?.toUpperCase() || 'Z'}
+      <div className="w-full max-w-xl z-10 page-fade-in">
+        <div className="grid md:grid-cols-5 gap-6">
+          {/* Left Column: Info (Social Proof) */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="rounded-3xl p-6 flex flex-col items-center text-center" style={GLASS}>
+               <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-3xl font-black text-white mb-4"
+                  style={{ background:'linear-gradient(135deg,#6366f1,#a855f7)', boxShadow:'0 8px 32px rgba(99,102,241,0.4)' }}>
+                  {session?.skillName?.charAt(0)?.toUpperCase()}
+               </div>
+               <h1 className="text-white text-xl font-black leading-tight mb-2 tracking-tight">{session?.skillName}</h1>
+               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 mb-4">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">Live Now</span>
+               </div>
+               <div className="flex flex-col items-center gap-1">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Hosted By</p>
+                  <p className="text-white font-bold text-sm tracking-tight">{session?.hostId?.name}</p>
+               </div>
+            </div>
+
+            <div className="rounded-3xl p-5 space-y-4" style={{ background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
+               <div className="flex items-center gap-3">
+                  <span className="text-indigo-400"><UsersIcon2 /></span>
+                  <p className="text-xs text-slate-300 font-semibold"><span className="text-white">{session?.participants?.length || 0}</span> Peers in room</p>
+               </div>
+               <div className="flex items-center gap-3">
+                  <span className="text-emerald-400"><ShieldIcon /></span>
+                  <p className="text-xs text-slate-300 font-semibold">Privacy Enabled</p>
+               </div>
+            </div>
           </div>
-          <h1 className="text-white text-2xl font-bold text-center">{session?.skillName}</h1>
-          {session?.description && (
-            <p className="text-center mt-1 text-sm" style={{ color:'rgba(148,163,184,0.7)' }}>{session.description}</p>
-          )}
-          <div className="mt-2 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-xs font-semibold text-red-300">LIVE</span>
+
+          {/* Right Column: Rules & Join */}
+          <div className="md:col-span-3">
+            <div className="rounded-[2rem] p-8 flex flex-col h-full overflow-hidden relative" style={GLASS}>
+               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500" />
+               
+               <h2 className="text-white font-black text-xl mb-4 flex items-center gap-2">
+                  <ShieldIcon /> Safety Guidelines
+               </h2>
+               
+               <div className="space-y-4 mb-8">
+                  {[
+                    { t:'Zero Tolerance', d:'Any form of harassment, hate speech, or inappropriate behavior leads to an immediate ban.' },
+                    { t:'Privacy First', d:'Do not record the session or capture screenshots without explicit consent from all participants.' },
+                    { t:'Professionalism', d:'Treat this as a collaborative learning space. Be respectful and goal-oriented.' },
+                    { t:'No Spamming', d:'Keep communication relevant to the skill being exchanged.' }
+                  ].map((r, i) => (
+                    <div key={i} className="flex gap-3">
+                       <div className="mt-1 w-5 h-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400 text-[10px] font-black flex-shrink-0">
+                          {i+1}
+                       </div>
+                       <div>
+                          <p className="text-xs font-bold text-white tracking-tight leading-none mb-1">{r.t}</p>
+                          <p className="text-[10px] text-slate-400 leading-relaxed font-medium">{r.d}</p>
+                       </div>
+                    </div>
+                  ))}
+               </div>
+
+               <div className="mt-auto pt-6 space-y-4" style={{ borderTop:'1px solid rgba(255,255,255,0.08)' }}>
+                  <label className="flex items-start gap-4 cursor-pointer group">
+                     <div className="relative mt-0.5">
+                        <input type="checkbox" className="sr-only p-2" checked={rulesAgreed} onChange={() => setRulesAgreed(!rulesAgreed)} />
+                        <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${rulesAgreed ? 'bg-indigo-500 border-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.5)]' : 'border-white/20 bg-white/5 group-hover:border-white/40'}`}>
+                           {rulesAgreed && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={4} className="w-3 h-3"><polyline points="20 6 9 17 4 12" /></svg>}
+                        </div>
+                     </div>
+                     <span className="text-[11px] text-slate-400 leading-tight select-none">
+                        I have read and agree to the <span className="text-white font-bold underline">Community Standards</span> and safety regulations for Live Sessions.
+                     </span>
+                  </label>
+
+                  <button
+                    onClick={handleJoin}
+                    disabled={joining || !rulesAgreed}
+                    className="w-full py-4 rounded-2xl text-white font-black tracking-wide text-sm flex items-center justify-center gap-3 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-30 disabled:grayscale disabled:scale-100"
+                    style={{ background:'linear-gradient(135deg,#3b82f6,#6366f1,#a855f7)', boxShadow: rulesAgreed ? '0 10px 30px rgba(99,102,241,0.5)' : 'none' }}>
+                    {joining ? (
+                      <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Verifying Access</>
+                    ) : (
+                      <><CameraIcon /> Enter Live Room</>
+                    )}
+                  </button>
+               </div>
+            </div>
           </div>
         </div>
-
-        {/* Info card */}
-        <div className="rounded-3xl p-6 mb-4" style={GLASS}>
-          {/* Host */}
-          <div className="flex items-center gap-3 pb-4" style={{ borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold text-white"
-              style={{ background:'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
-              {session?.hostId?.name?.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <p className="text-white font-semibold text-sm">{session?.hostId?.name}</p>
-              <p className="text-xs" style={{ color:'rgba(148,163,184,0.6)' }}>Session Host</p>
-            </div>
-            <div className="ml-auto flex items-center gap-1 text-xs px-2.5 py-1 rounded-full"
-              style={{ background:'rgba(99,102,241,0.15)', color:'#a5b4fc' }}>
-              <UsersIcon2 /> {session?.participants?.length || 0} joined
-            </div>
-          </div>
-
-          {/* Permissions notice */}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {[
-              { icon: <CameraIcon />, label: 'Camera', desc: 'Will be requested' },
-              { icon: <MicIcon2 />, label: 'Microphone', desc: 'Will be requested' },
-              { icon: <ShieldIcon />, label: 'Encrypted', desc: 'End-to-end P2P' },
-              { icon: <ZapIcon />, label: 'Low Latency', desc: 'WebRTC direct' },
-            ].map(({ icon, label, desc }) => (
-              <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-                style={{ background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.07)' }}>
-                <span style={{ color:'#818cf8' }}>{icon}</span>
-                <div>
-                  <p className="text-white text-xs font-semibold">{label}</p>
-                  <p className="text-[10px]" style={{ color:'rgba(148,163,184,0.6)' }}>{desc}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Join / error */}
-        {error && (
-          <div className="mb-3 px-4 py-3 rounded-2xl text-red-300 text-sm text-center"
-            style={{ background:'rgba(220,38,38,0.15)', border:'1px solid rgba(220,38,38,0.3)' }}>
-            {error}
-          </div>
-        )}
-
-        <button
-          onClick={handleJoin}
-          disabled={joining}
-          className="w-full py-4 rounded-2xl text-white font-bold text-base flex items-center justify-center gap-2.5 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:scale-100"
-          style={{ background:'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow:'0 8px 24px rgba(99,102,241,0.45)' }}>
-          {joining ? (
-            <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Joining</>
-          ) : (
-            <><CameraIcon /> Join Session</>
-          )}
-        </button>
-
-        <button onClick={() => navigate('/video')}
-          className="w-full mt-3 py-3 rounded-2xl text-sm font-medium flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
-          style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.10)', color:'rgba(255,255,255,0.6)' }}>
-          <ArrowLeftIcon2 /> Back to Sessions
-        </button>
       </div>
     </div>
   );

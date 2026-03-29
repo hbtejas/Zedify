@@ -28,6 +28,11 @@ const videoSessionSchema = new mongoose.Schema(
       enum: ['waiting', 'live', 'ended'],
       default: 'waiting',
     },
+    isPrivate: {
+      type: Boolean,
+      default: false,
+    },
+    allowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );
