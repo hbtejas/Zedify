@@ -31,8 +31,9 @@ function App() {
             {/* Protected routes */}
             <Route path="/feed" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            {/* /profile/edit MUST come before /profile/:id to avoid 'edit' being treated as an id */}
             <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+            <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
             <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
             <Route path="/chat/:userId" element={<PrivateRoute><Chat /></PrivateRoute>} />
             <Route path="/video" element={<PrivateRoute><VideoSessions /></PrivateRoute>} />

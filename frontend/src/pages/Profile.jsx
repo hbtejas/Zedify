@@ -73,15 +73,14 @@ const Profile = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [profileRes, feedRes] = await Promise.all([
+        const [profileRes, postsRes] = await Promise.all([
           userAPI.getProfile(id),
-          postAPI.getFeed(1),
+          postAPI.getUserPosts(id),
         ]);
         const p = profileRes.data.data;
         setProfile(p);
         setFollowed(p.followers?.some((f) => f._id === currentUser?._id || f === currentUser?._id));
-        const allPosts = feedRes.data.data || [];
-        setPosts(allPosts.filter((p) => p.userId?._id === id || p.userId === id));
+        setPosts(postsRes.data.data || []);
       } catch {}
       setLoading(false);
     };

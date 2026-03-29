@@ -110,12 +110,14 @@ const followUser = async (req, res) => {
       });
 
       // Emit real-time notification
-      const io = getIO();
-      const onlineUsers = getOnlineUsers();
-      const targetSocketId = onlineUsers.get(userId);
-      if (targetSocketId) {
-        io.to(targetSocketId).emit('newNotification', notification);
-      }
+      try {
+        const io = getIO();
+        const onlineUsers = getOnlineUsers();
+        const targetSocketId = onlineUsers.get(userId);
+        if (targetSocketId) {
+          io.to(targetSocketId).emit('newNotification', notification);
+        }
+      } catch (_) {}
 
       res.json({ success: true, message: 'Followed successfully' });
     }
@@ -236,16 +238,18 @@ const rateUser = async (req, res) => {
     await targetUser.save();
 
     // Notify the rated user
-    const io = getIO();
-    const onlineUsers = getOnlineUsers();
-    const targetSocketId = onlineUsers.get(userId);
-    if (targetSocketId) {
-      io.to(targetSocketId).emit('ratingReceived', {
-        from: req.user.name,
-        value,
-        avgRating: targetUser.avgRating,
-      });
-    }
+    try {
+      const io = getIO();
+      const onlineUsers = getOnlineUsers();
+      const targetSocketId = onlineUsers.get(userId);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit('ratingReceived', {
+          from: req.user.name,
+          value,
+          avgRating: targetUser.avgRating,
+        });
+      }
+    } catch (_) {}
 
     res.json({ success: true, message: 'Rating submitted', avgRating: targetUser.avgRating, totalRatings: targetUser.ratings.length });
   } catch (error) {

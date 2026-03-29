@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ────────────────────────────────────────────────── */
 /* CSS CUSTOM PROPERTIES                              */
@@ -295,8 +295,8 @@
 }
 
 /* ── Video mirror ── */
-video { transform: scaleX(-1); }
-video.no-mirror { transform: scaleX(1); }
+/* Local camera mirror is applied inline in VideoPlayer only */
+video.mirror { transform: scaleX(-1); }
 
 /* ── Page transitions ── */
 #root { @apply flex flex-col min-h-screen; }

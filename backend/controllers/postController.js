@@ -16,9 +16,31 @@ const createPost = async (req, res) => {
 
     if (req.file) {
       const resourceType = req.file.mimetype.startsWith('video') ? 'video' : 'image';
-      const result = await uploadToCloudinary(req.file.buffer, 'skillswap/posts', resourceType);
-      if (resourceType === 'image') image = result.secure_url;
-      else video = result.secure_url;
+      const hasCloudinary =
+        process.env.CLOUDINARY_API_KEY &&
+        process.env.CLOUDINARY_API_KEY !== 'your_api_key' &&
+        process.env.CLOUDINARY_CLOUD_NAME &&
+        process.env.CLOUDINARY_CLOUD_NAME !== 'your_cloud_name';
+
+      if (hasCloudinary) {
+        try {
+          const result = await uploadToCloudinary(req.file.buffer, 'skillswap/posts', resourceType);
+          if (resourceType === 'image') image = result.secure_url;
+          else video = result.secure_url;
+        } catch (uploadErr) {
+          console.warn('Cloudinary upload failed, using base64 fallback:', uploadErr.message);
+          const base64 = req.file.buffer.toString('base64');
+          const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+          if (resourceType === 'image') image = dataUrl;
+          else video = dataUrl;
+        }
+      } else {
+        // Fallback: convert buffer to base64 data URL for local storage
+        const base64 = req.file.buffer.toString('base64');
+        const dataUrl = `data:${req.file.mimetype};base64,${base64}`;
+        if (resourceType === 'image') image = dataUrl;
+        else video = dataUrl;
+      }
     }
 
     if (!content && !image && !video) {
@@ -118,12 +140,14 @@ const likePost = async (req, res) => {
           link: `/post/${postId}`,
         });
 
-        const io = getIO();
-        const onlineUsers = getOnlineUsers();
-        const targetSocketId = onlineUsers.get(post.userId.toString());
-        if (targetSocketId) {
-          io.to(targetSocketId).emit('newNotification', notification);
-        }
+        try {
+          const io = getIO();
+          const onlineUsers = getOnlineUsers();
+          const targetSocketId = onlineUsers.get(post.userId.toString());
+          if (targetSocketId) {
+            io.to(targetSocketId).emit('newNotification', notification);
+          }
+        } catch (_) {}
       }
 
       res.json({ success: true, message: 'Post liked' });
@@ -159,12 +183,14 @@ const commentPost = async (req, res) => {
         link: `/post/${postId}`,
       });
 
-      const io = getIO();
-      const onlineUsers = getOnlineUsers();
-      const targetSocketId = onlineUsers.get(post.userId.toString());
-      if (targetSocketId) {
-        io.to(targetSocketId).emit('newNotification', notification);
-      }
+      try {
+        const io = getIO();
+        const onlineUsers = getOnlineUsers();
+        const targetSocketId = onlineUsers.get(post.userId.toString());
+        if (targetSocketId) {
+          io.to(targetSocketId).emit('newNotification', notification);
+        }
+      } catch (_) {}
     }
 
     res.json({ success: true, message: 'Comment added', data: post });
@@ -341,4 +367,36 @@ const getAIFeed = async (req, res) => {
   }
 };
 
-module.exports = { createPost, getFeed, getAIFeed, likePost, commentPost, deletePost, getPost };
+// @desc Get posts by a specific user
+// @route GET /api/posts/user/:userId
+const getUserPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const page  = parseInt(req.query.page)  || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip  = (page - 1) * limit;
+
+    if (!isDBConnected()) {
+      return res.json({ success: true, data: [], pagination: { page, limit, total: 0, pages: 0 } });
+    }
+
+    const posts = await Post.find({ userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('userId', 'name profilePicture')
+      .populate('comments.userId', 'name profilePicture');
+
+    const total = await Post.countDocuments({ userId });
+
+    res.json({
+      success: true,
+      data: posts,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { createPost, getFeed, getAIFeed, likePost, commentPost, deletePost, getPost, getUserPosts };

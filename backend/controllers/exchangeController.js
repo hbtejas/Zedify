@@ -43,13 +43,15 @@ const sendExchange = async (req, res) => {
       link: `/exchange`,
     });
 
-    const io = getIO();
-    const onlineUsers = getOnlineUsers();
-    const receiverSocketId = onlineUsers.get(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit('newNotification', notification);
-      io.to(receiverSocketId).emit('newExchangeRequest', populated);
-    }
+    try {
+      const io = getIO();
+      const onlineUsers = getOnlineUsers();
+      const receiverSocketId = onlineUsers.get(receiverId);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit('newNotification', notification);
+        io.to(receiverSocketId).emit('newExchangeRequest', populated);
+      }
+    } catch (_) {}
 
     res.status(201).json({ success: true, message: 'Exchange request sent', data: populated });
   } catch (error) {
@@ -92,13 +94,15 @@ const respondExchange = async (req, res) => {
       link: `/exchange`,
     });
 
-    const io = getIO();
-    const onlineUsers = getOnlineUsers();
-    const senderSocketId = onlineUsers.get(exchange.senderId.toString());
-    if (senderSocketId) {
-      io.to(senderSocketId).emit('newNotification', notification);
-      io.to(senderSocketId).emit('exchangeResponded', populated);
-    }
+    try {
+      const io = getIO();
+      const onlineUsers = getOnlineUsers();
+      const senderSocketId = onlineUsers.get(exchange.senderId.toString());
+      if (senderSocketId) {
+        io.to(senderSocketId).emit('newNotification', notification);
+        io.to(senderSocketId).emit('exchangeResponded', populated);
+      }
+    } catch (_) {}
 
     res.json({ success: true, message: `Exchange ${action}`, data: populated });
   } catch (error) {

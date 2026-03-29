@@ -1,20 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
-import { chatAPI } from '../services/api';
+import { chatAPI, videoAPI } from '../services/api';
 
 const GLASS_DARK = { background: 'rgba(0,0,0,0.30)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.08)' };
 
 const ChatBox = ({ recipient }) => {
   const { user } = useAuth();
   const { socket, isUserOnline } = useSocket();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [sending, setSending] = useState(false);
+  const [startingCall, setStartingCall] = useState(false);
   const bottomRef = useRef(null);
   const typingTimeoutRef = useRef(null);
+
+  const handleVideoCall = async () => {
+    if (!recipient || startingCall) return;
+    setStartingCall(true);
+    try {
+      const { data } = await videoAPI.createSession(`Call with ${recipient.name}`, `Direct video call`);
+      navigate(`/video/session/${data.data._id}`);
+    } catch {
+      navigate('/video');
+    } finally {
+      setStartingCall(false);
+    }
+  };
 
   // Fetch conversation
   useEffect(() => {
@@ -147,12 +163,19 @@ const ChatBox = ({ recipient }) => {
           </p>
         </div>
         {/* Video call shortcut */}
-        <button className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+        <button
+          onClick={handleVideoCall}
+          disabled={startingCall}
+          className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           style={{ background: 'rgba(99,102,241,0.18)', border: '1px solid rgba(99,102,241,0.25)' }}
           title="Start video call">
-          <svg className="w-4 h-4" style={{ color: '#a5b4fc' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M4 8h8a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2z" />
-          </svg>
+          {startingCall ? (
+            <div className="w-4 h-4 rounded-full border-2 animate-spin" style={{ borderColor: '#a5b4fc', borderTopColor: 'transparent' }} />
+          ) : (
+            <svg className="w-4 h-4" style={{ color: '#a5b4fc' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M4 8h8a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2z" />
+            </svg>
+          )}
         </button>
       </div>
 

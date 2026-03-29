@@ -70,11 +70,15 @@ const timeAgo = (date) => {
 };
 
 const notifCfg = {
-  exchange_request: { border: '#3b82f6', bg: 'rgba(59,130,246,0.12)', dot: '#3b82f6', label: 'Exchange' },
+  exchange_request:  { border: '#3b82f6', bg: 'rgba(59,130,246,0.12)',  dot: '#3b82f6', label: 'Exchange' },
   exchange_accepted: { border: '#10b981', bg: 'rgba(16,185,129,0.12)', dot: '#10b981', label: 'Accepted' },
-  exchange_declined: { border: '#ef4444', bg: 'rgba(239,68,68,0.12)', dot: '#ef4444', label: 'Declined' },
-  new_message: { border: '#a855f7', bg: 'rgba(168,85,247,0.12)', dot: '#a855f7', label: 'Message' },
-  new_follower: { border: '#f59e0b', bg: 'rgba(245,158,11,0.12)', dot: '#f59e0b', label: 'Follower' },
+  exchange_rejected: { border: '#ef4444', bg: 'rgba(239,68,68,0.12)',   dot: '#ef4444', label: 'Declined' },
+  exchange_declined: { border: '#ef4444', bg: 'rgba(239,68,68,0.12)',   dot: '#ef4444', label: 'Declined' },
+  new_message:       { border: '#a855f7', bg: 'rgba(168,85,247,0.12)', dot: '#a855f7', label: 'Message' },
+  new_follower:      { border: '#f59e0b', bg: 'rgba(245,158,11,0.12)', dot: '#f59e0b', label: 'Follower' },
+  follow:            { border: '#f59e0b', bg: 'rgba(245,158,11,0.12)', dot: '#f59e0b', label: 'Follower' },
+  like:              { border: '#ef4444', bg: 'rgba(239,68,68,0.12)',   dot: '#ef4444', label: 'Like' },
+  comment:           { border: '#06b6d4', bg: 'rgba(6,182,212,0.12)',   dot: '#06b6d4', label: 'Comment' },
 };
 
 const statusCfg = {
@@ -118,8 +122,8 @@ const Dashboard = () => {
   useEffect(() => {
     if (!socket) return;
     const handler = (notif) => setLiveNotifs((prev) => [notif, ...prev]);
-    socket.on('notification', handler);
-    return () => socket.off('notification', handler);
+    socket.on('newNotification', handler);
+    return () => socket.off('newNotification', handler);
   }, [socket]);
 
   const allNotifs = [...liveNotifs, ...notifications].slice(0, 10);
