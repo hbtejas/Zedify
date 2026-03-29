@@ -73,9 +73,9 @@ Edit `backend/.env`:
 
 ```env
 PORT=5000
-MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/skillswap?retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/zedify?retryWrites=true&w=majority
 JWT_SECRET=replace_with_a_strong_secret_key
-CLIENT_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3000
 
 CLOUDINARY_CLOUD_NAME=your_cloudname
 CLOUDINARY_API_KEY=your_api_key

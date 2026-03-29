@@ -16,7 +16,7 @@ const placeholders = ['<username>', '<password>', 'xxxxx', 'your_', 'change_this
 
 let allGood = true;
 
-console.log('\n🔍 SkillSwap Campus — Environment Check\n');
+console.log('\n🔍 Zedify — Production Readiness Check\n');
 
 for (const [key, description] of Object.entries(required)) {
   const val = process.env[key] || '';

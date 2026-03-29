@@ -22,7 +22,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
 
 // Helper: upload buffer to Cloudinary
-const uploadToCloudinary = (buffer, folder = 'skillswap', resourceType = 'auto') => {
+const uploadToCloudinary = (buffer, folder = 'zedify', resourceType = 'auto') => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       { folder, resource_type: resourceType },

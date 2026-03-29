@@ -10,7 +10,7 @@ const api = axios.create({
 // Request interceptor - attach token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('skillswap_token');
+    const token = localStorage.getItem('zedify_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,8 +24,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('skillswap_user');
-      localStorage.removeItem('skillswap_token');
+      localStorage.removeItem('zedify_user');
+      localStorage.removeItem('zedify_token');
       window.location.href = '/login';
     }
     return Promise.reject(error);

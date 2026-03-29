@@ -41,7 +41,7 @@ const updateProfile = async (req, res) => {
 
       if (hasCloudinary) {
         try {
-          const result = await uploadToCloudinary(req.file.buffer, 'skillswap/avatars', 'image');
+          const result = await uploadToCloudinary(req.file.buffer, 'zedify/avatars', 'image');
           profilePicture = result.secure_url;
         } catch (uploadErr) {
           console.warn('Cloudinary upload failed, skipping picture update:', uploadErr.message);

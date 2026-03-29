@@ -1,7 +1,7 @@
 {
-  "name": "skillswap-backend",
+  "name": "zedify-backend",
   "version": "1.0.0",
-  "description": "SkillSwap Campus Backend API",
+  "description": "Zedify — Peer-to-Peer Skill Exchange Platform Backend",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

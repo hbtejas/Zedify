@@ -1,7 +1,7 @@
 {
-  "name": "skillswap-campus",
-  "version": "1.0.0",
-  "description": "SkillSwap Campus – Real-Time Student Skill Exchange Platform",
+  "name": "zedify",
+  "version": "1.0.1",
+  "description": "Zedify — Peer-to-Peer Skill Exchange & Collaborative Learning Platform",
   "scripts": {
     "install:all": "npm install --prefix backend && npm install --legacy-peer-deps --prefix frontend",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\" --names \"BACKEND,FRONTEND\" --prefix-colors \"bgBlue.bold,bgGreen.bold\"",

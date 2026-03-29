@@ -28,6 +28,8 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       localStorage.setItem('skillswap_user', JSON.stringify(userData));
       localStorage.setItem('skillswap_token', userData.token);
+      localStorage.setItem('zedify_user', JSON.stringify(userData));
+      localStorage.setItem('zedify_token', userData.token);
       api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
       return { success: true };
     } catch (err) {
@@ -43,8 +45,8 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.post('/auth/login', { email, password });
       const userData = data.data;
       setUser(userData);
-      localStorage.setItem('skillswap_user', JSON.stringify(userData));
-      localStorage.setItem('skillswap_token', userData.token);
+      localStorage.setItem('zedify_user', JSON.stringify(userData));
+      localStorage.setItem('zedify_token', userData.token);
       api.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
       return { success: true };
     } catch (err) {
@@ -56,15 +58,15 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('skillswap_user');
-    localStorage.removeItem('skillswap_token');
+    localStorage.removeItem('zedify_user');
+    localStorage.removeItem('zedify_token');
     delete api.defaults.headers.common['Authorization'];
   };
 
   const updateUserInContext = (updatedUser) => {
     const merged = { ...user, ...updatedUser };
     setUser(merged);
-    localStorage.setItem('skillswap_user', JSON.stringify(merged));
+    localStorage.setItem('zedify_user', JSON.stringify(merged));
   };
 
   return (

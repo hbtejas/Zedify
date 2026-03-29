@@ -24,7 +24,7 @@ const createPost = async (req, res) => {
 
       if (hasCloudinary) {
         try {
-          const result = await uploadToCloudinary(req.file.buffer, 'skillswap/posts', resourceType);
+          const result = await uploadToCloudinary(req.file.buffer, 'zedify/posts', resourceType);
           if (resourceType === 'image') image = result.secure_url;
           else video = result.secure_url;
         } catch (uploadErr) {
