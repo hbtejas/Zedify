@@ -76,7 +76,7 @@ const register = async (req, res) => {
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    res.status(500).json({ success: false, message: error.message || 'Registration failed' });
   }
 };
 
@@ -101,7 +101,11 @@ const login = async (req, res) => {
         return res.status(401).json({ success: false, message: 'Invalid email or password' });
       }
       user.onlineStatus = true;
-      await user.save({ validateBeforeSave: false });
+      try {
+        await user.save({ validateBeforeSave: false });
+      } catch (err) {
+        console.warn('Could not update online status:', err.message);
+      }
       return res.json({
         success: true, message: 'Login successful',
         data: buildUserPayload(user, generateToken(user._id)),
@@ -123,7 +127,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+    res.status(500).json({ success: false, message: error.message || 'Login failed' });
   }
 };
 
