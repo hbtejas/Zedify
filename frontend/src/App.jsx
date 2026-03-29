@@ -23,29 +23,31 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <Router>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+          <div className="page-fade-in">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-            {/* Protected routes */}
-            <Route path="/feed" element={<PrivateRoute><Home /></PrivateRoute>} />
-            <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-            {/* /profile/edit MUST come before /profile/:id to avoid 'edit' being treated as an id */}
-            <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
-            <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
-            <Route path="/chat/:userId" element={<PrivateRoute><Chat /></PrivateRoute>} />
-            <Route path="/video" element={<PrivateRoute><VideoSessions /></PrivateRoute>} />
-            <Route path="/video/session/:sessionId" element={<PrivateRoute><VideoSession /></PrivateRoute>} />
-            <Route path="/exchange" element={<PrivateRoute><Exchange /></PrivateRoute>} />
-            <Route path="/network" element={<PrivateRoute><Network /></PrivateRoute>} />
-            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+              {/* Protected routes */}
+              <Route path="/feed" element={<PrivateRoute><Home /></PrivateRoute>} />
+              <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+              {/* /profile/edit MUST come before /profile/:id to avoid 'edit' being treated as an id */}
+              <Route path="/profile/edit" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+              <Route path="/profile/:id" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/chat" element={<PrivateRoute><Chat /></PrivateRoute>} />
+              <Route path="/chat/:userId" element={<PrivateRoute><Chat /></PrivateRoute>} />
+              <Route path="/video" element={<PrivateRoute><VideoSessions /></PrivateRoute>} />
+              <Route path="/video/session/:sessionId" element={<PrivateRoute><VideoSession /></PrivateRoute>} />
+              <Route path="/exchange" element={<PrivateRoute><Exchange /></PrivateRoute>} />
+              <Route path="/network" element={<PrivateRoute><Network /></PrivateRoute>} />
+              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
         </Router>
       </SocketProvider>
     </AuthProvider>

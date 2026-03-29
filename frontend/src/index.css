@@ -32,6 +32,11 @@
     overflow-x: hidden;
   }
   ::selection { background: rgba(99,102,241,0.35); color: #fff; }
+
+  /* Apply global smoothness to all interactive elements */
+  a, button, input, select, textarea {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
 }
 
 @layer components {
@@ -248,9 +253,10 @@
   .status-dot-red   { @apply w-2.5 h-2.5 rounded-full bg-red-400;     box-shadow: 0 0 6px rgba(248,113,113,0.7); }
   .status-dot-amber { @apply w-2.5 h-2.5 rounded-full bg-amber-400;   box-shadow: 0 0 6px rgba(251,191,36,0.7); }
 
-  /* ── Scroll reveal ── */
-  .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+  /* ── Page Entry ── */
+  .page-fade-in {
+    animation: pageEntry 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
 
   /* ── Section divider ── */
   .section-divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4), rgba(124,58,237,0.3), transparent); border: none; }
@@ -345,4 +351,9 @@ video.mirror { transform: scaleX(-1); }
   50%  { background-position: 100% 100%; }
   100% { background-position: -100% -100%; }
 }
+@keyframes pageEntry {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
