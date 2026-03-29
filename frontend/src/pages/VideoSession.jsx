@@ -116,6 +116,15 @@ const VideoSession = () => {
     setJoining(false);
   };
 
+  const handleApprove = async (uId) => {
+     try {
+       await videoAPI.approveParticipant(sessionId, uId);
+       fetchSession();
+     } catch (err) {
+       alert('Approval failed');
+     }
+  };
+
   const handleApproveAll = async () => {
      try {
        await videoAPI.approveAll(sessionId);
