@@ -116,15 +116,32 @@ const VideoSession = () => {
     setJoining(false);
   };
 
-  const handleApprove = async (uId) => {
+  const handleApproveAll = async () => {
      try {
-       await videoAPI.approveParticipant(sessionId, uId);
-       // Refresh list
+       await videoAPI.approveAll(sessionId);
        fetchSession();
      } catch (err) {
-       alert('Approval failed');
+       alert('Failed to approve all');
      }
   };
+
+  const handleUpdateSettings = async (updates) => {
+     try {
+        await videoAPI.updateSettings(sessionId, updates);
+        fetchSession();
+     } catch (err) {
+        alert('Failed to update settings');
+     }
+  };
+
+  const handleRemove = async (uId) => {
+     if(window.confirm('Remove this participant?')) {
+        try {
+           await videoAPI.removeParticipant(sessionId, uId);
+           fetchSession();
+        } catch {}
+     }
+  }
 
   const handleEnd = async () => {
     if (window.confirm('End this session for all participants?')) {
@@ -145,6 +162,20 @@ const VideoSession = () => {
           <p className="text-white/50 text-sm font-medium tracking-wide">Securing connection...</p>
         </div>
       </div>
+    );
+  }
+
+  // --- ROOM LOCKED ---
+  if (session?.isLocked && !isHost && !session.allowedUsers.some(u => u._id === user._id || u === user._id)) {
+    return (
+       <div className="min-h-screen flex items-center justify-center p-6 text-center" style={{ background: BG }}>
+          <div className="max-w-sm w-full p-10 rounded-3xl" style={GLASS}>
+             <div className="text-5xl mb-6">🔒</div>
+             <h2 className="text-white font-black text-2xl mb-4">Meeting Locked</h2>
+             <p className="text-slate-400 text-sm mb-8">The host has locked this session. No new participants can join at this time.</p>
+             <button onClick={() => navigate('/video')} className="w-full py-4 rounded-xl glass-dark text-white font-bold">Return Home</button>
+          </div>
+       </div>
     );
   }
 
@@ -218,8 +249,9 @@ const VideoSession = () => {
             </button>
             <div className="relative">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                <span className={`w-2 h-2 rounded-full ${session?.isLocked ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
                 <span className="text-white font-bold text-sm tracking-tight">{session?.skillName}</span>
+                {session?.isLocked && <span className="text-[9px] px-2 py-0.5 rounded-full font-black text-amber-400 border border-amber-500/30 ml-1">LOCKED</span>}
                 <span className="text-[9px] px-2 py-0.5 rounded-full font-black text-blue-400 border border-blue-500/30"
                   style={{ background:'rgba(59,130,246,0.1)' }}>SECURE</span>
               </div>
@@ -229,12 +261,9 @@ const VideoSession = () => {
           <div className="flex items-center gap-4">
             {/* Host: Pending Requests Panel */}
             {isHost && pendingParticipants.length > 0 && (
-               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 animate-bounce">
+               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
                   <span className="text-[10px] font-black text-amber-500">{pendingParticipants.length} Waiting</span>
-                  <button onClick={() => {
-                     const next = pendingParticipants[0];
-                     if(next) handleApprove(next._id || next);
-                  }} className="text-[10px] font-bold text-white bg-amber-500 px-2 py-0.5 rounded-md">Approve Next</button>
+                  <button onClick={handleApproveAll} className="text-[10px] font-bold text-emerald-400 hover:text-white transition-colors">Allow All</button>
                </div>
             )}
 
@@ -263,6 +292,10 @@ const VideoSession = () => {
             onEnd={handleEnd} 
             pendingApprovals={pendingParticipants} 
             onApprove={handleApprove}
+            onApproveAll={handleApproveAll}
+            onRemove={handleRemove}
+            settings={{ isLocked: session?.isLocked, isChatDisabled: session?.isChatDisabled }}
+            updateSettings={handleUpdateSettings}
           />
         </div>
       </div>

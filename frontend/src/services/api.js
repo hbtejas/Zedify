@@ -77,6 +77,9 @@ export const videoAPI = {
   joinSession: (id) => api.post(`/video/join/${id}`),
   requestToJoin: (id) => api.post(`/video/request/${id}`),
   approveParticipant: (id, userId) => api.post(`/video/approve/${id}`, { userId }),
+  approveAll: (id) => api.post(`/video/approve-all/${id}`),
+  removeParticipant: (id, userId) => api.post(`/video/remove/${id}`, { userId }),
+  updateSettings: (id, settings) => api.put(`/video/settings/${id}`, settings),
   endSession: (id) => api.put(`/video/end/${id}`),
   getActiveSessions: () => api.get('/video/sessions'),
 };

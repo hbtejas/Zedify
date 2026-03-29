@@ -153,6 +153,57 @@ const approveParticipant = async (req, res) => {
   }
 };
 
+// @desc Update session settings (Host only)
+// @route PUT /api/video/settings/:id
+const updateSessionSettings = async (req, res) => {
+  try {
+    const { isLocked, isChatDisabled } = req.body;
+    const session = await VideoSession.findOne({ sessionId: req.params.id });
+    
+    if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+    if (session.hostId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Only host can change settings' });
+    }
+    
+    const updated = await VideoSession.findByIdAndUpdate(session._id, {
+      isLocked: isLocked ?? session.isLocked,
+      isChatDisabled: isChatDisabled ?? session.isChatDisabled
+    }, { new: true });
+    
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc Approve all waiting users (Host only)
+const approveAllParticipants = async (req, res) => {
+  try {
+    const session = await VideoSession.findOne({ sessionId: req.params.id });
+    if (session.hostId.toString() !== req.user._id.toString()) return res.status(403).send('Denied');
+    
+    await VideoSession.findByIdAndUpdate(session._id, {
+      $addToSet: { allowedUsers: { $each: session.waitingList } },
+      $set: { waitingList: [] }
+    });
+    res.json({ success: true });
+  } catch (error) { res.status(500).send(error.message); }
+};
+
+// @desc Remove participant (Host only)
+const removeParticipant = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const session = await VideoSession.findOne({ sessionId: req.params.id });
+    if (session.hostId.toString() !== req.user._id.toString()) return res.status(403).send('Denied');
+    
+    await VideoSession.findByIdAndUpdate(session._id, {
+      $pull: { allowedUsers: userId, participants: userId }
+    });
+    res.json({ success: true });
+  } catch (error) { res.status(500).send(error.message); }
+};
+
 module.exports = { 
   createSession, 
   getSession, 
@@ -160,5 +211,8 @@ module.exports = {
   endSession, 
   getActiveSessions,
   requestToJoin,
-  approveParticipant 
+  approveParticipant,
+  approveAllParticipants,
+  removeParticipant,
+  updateSessionSettings
 };

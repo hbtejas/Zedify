@@ -217,7 +217,17 @@ const FloatingReaction = ({ emoji, x, id, onDone }) => {
 /* ========================================================================= */
 /*  Main Component                                                           */
 /* ========================================================================= */
-const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprove }) => {
+const VideoPlayer = ({ 
+  sessionId, 
+  isHost, 
+  onEnd, 
+  pendingApprovals = [], 
+  onApprove,
+  onApproveAll,
+  onRemove,
+  settings = { isLocked: false, isChatDisabled: false },
+  updateSettings
+}) => {
   const { user } = useAuth();
   const { socket } = useSocket();
 
@@ -727,16 +737,24 @@ const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprov
               ))}
               <div ref={chatBottomRef}/>
             </div>
-            <form onSubmit={sendChatMessage} className="p-3 flex gap-2 flex-shrink-0"
+            <form onSubmit={sendChatMessage} className="p-3 flex flex-col gap-2 flex-shrink-0"
               style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-              <input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Type a message..."
-                className="flex-1 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}/>
-              <button type="submit" className="w-9 h-9 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 flex-shrink-0"
-                style={{ background: 'rgba(99,102,241,0.75)' }}>
-                <SendIcon/>
-              </button>
+              {(!isHost && settings.isChatDisabled) ? (
+                 <div className="py-2.5 px-3 rounded-xl bg-white/5 border border-white/5 text-[10px] text-zinc-500 font-bold text-center">
+                    🔒 Chat disabled by host
+                 </div>
+              ) : (
+                 <div className="flex gap-2 w-full">
+                    <input value={chatInput} onChange={(e) => setChatInput(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 outline-none"
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}/>
+                    <button type="submit" className="w-9 h-9 rounded-xl flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 flex-shrink-0"
+                      style={{ background: 'rgba(99,102,241,0.75)' }}>
+                      <SendIcon/>
+                    </button>
+                 </div>
+              )}
             </form>
           </>)}
 
@@ -757,16 +775,18 @@ const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprov
                           <button onClick={() => onApprove(p._id || p)} className="bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-lg text-[10px] font-bold text-white transition-all active:scale-95">Approve</button>
                        </div>
                     ))}
+                    <button onClick={onApproveAll} className="w-full py-2 rounded-xl text-[10px] font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-all">Approve All</button>
                     <div className="w-full h-px bg-white/5 my-3" />
                  </div>
               )}
 
               <PRow name={user.name} role={isHost ? 'Host · You' : 'You'} grad="linear-gradient(135deg,#4f46e5,#7c3aed)"
                 audioOff={!audioEnabled} videoOff={!videoEnabled} handUp={handRaised} highlight={isHost}/>
-              {remoteEntries.map(([sid, { userName }]) => {
+              {remoteEntries.map(([sid, { userName, userId }]) => {
                 const ms = peerMediaState[sid] || {};
                 return <PRow key={sid} name={userName || 'Participant'} role="Participant" grad="linear-gradient(135deg,#2563eb,#4f46e5)"
-                  audioOff={ms.audioEnabled === false} videoOff={ms.videoEnabled === false} handUp={!!raisedHands[sid]}/>;
+                  audioOff={ms.audioEnabled === false} videoOff={ms.videoEnabled === false} handUp={!!raisedHands[sid]}
+                  onRemove={isHost ? () => onRemove(userId || sid) : null}/>;
               })}
               {totalPeers === 0 && (
                 <div className="flex flex-col items-center justify-center py-8 gap-2">
@@ -775,20 +795,40 @@ const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprov
                 </div>
               )}
             </div>
-            {isHost && totalPeers > 0 && (
-              <div className="p-3 flex-shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <button onClick={muteAll} className="w-full py-2 rounded-xl text-sm font-semibold text-red-300 transition-all hover:bg-red-500/20"
-                  style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
-                  Mute Everyone
-                </button>
-              </div>
-            )}
           </>)}
 
           {/* Settings */}
           {panel === 'settings' && (<>
             <SBHeader title="Settings" icon={<SettingsIcon/>} onClose={() => setPanel(null)}/>
             <div className="flex-1 overflow-y-auto p-4 space-y-5">
+              {isHost && (
+                <div>
+                   <SBSection>Host Controls</SBSection>
+                   <div className="space-y-2">
+                      <button onClick={() => updateSettings({ isLocked: !settings.isLocked })}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${settings.isLocked ? 'bg-amber-500/10 border-amber-500/50 text-amber-500' : 'bg-white/5 border-white/10 text-white/60 hover:border-white/20'}`}>
+                         <div className="flex items-center gap-2">
+                            <span className="text-sm">🔒</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Lock Meeting</span>
+                         </div>
+                         <div className={`w-10 h-5 rounded-full relative transition-all ${settings.isLocked ? 'bg-amber-500' : 'bg-white/10'}`}>
+                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.isLocked ? 'left-6' : 'left-1'}`} />
+                         </div>
+                      </button>
+                      <button onClick={() => updateSettings({ isChatDisabled: !settings.isChatDisabled })}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${settings.isChatDisabled ? 'bg-red-500/10 border-red-500/50 text-red-500' : 'bg-white/5 border-white/10 text-white/60 hover:border-white/20'}`}>
+                         <div className="flex items-center gap-2">
+                            <span className="text-sm">💬</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Mute Chat</span>
+                         </div>
+                         <div className={`w-10 h-5 rounded-full relative transition-all ${settings.isChatDisabled ? 'bg-red-500' : 'bg-white/10'}`}>
+                            <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all ${settings.isChatDisabled ? 'left-6' : 'left-1'}`} />
+                         </div>
+                      </button>
+                   </div>
+                   <div className="w-full h-px bg-white/5 my-5" />
+                </div>
+              )}
               <div>
                 <SBSection>Layout</SBSection>
                 <div className="grid grid-cols-2 gap-2">
@@ -809,19 +849,7 @@ const VideoPlayer = ({ sessionId, isHost, onEnd, pendingApprovals = [], onApprov
                     { label:'Video Quality', value: videoEnabled?'HD (720p)':'Off',  dot:'bg-emerald-400' },
                     { label:'Audio Quality', value: audioEnabled?'48 kHz':'Muted', dot:'bg-emerald-400' },
                     { label:'Protocol',      value:'WebRTC P2P',                    dot:'bg-indigo-400'  },
-                    { label:'Encryption',    value:'DTLS-SRTP',                     dot:'bg-purple-400'  },
                   ].map(({ label, value, dot }) => <IRow key={label} label={label} value={value} dot={dot}/>)}
-                </div>
-              </div>
-              <div>
-                <SBSection>Session</SBSection>
-                <div className="space-y-2">
-                  {[
-                    { label:'Participants',  value: 1 + totalPeers },
-                    { label:'Duration',      value: formatDuration(duration) },
-                    { label:'Your Role',     value: isHost ? '👑 Host' : 'Participant' },
-                    { label:'Raised Hands',  value: Object.keys(raisedHands).length + (handRaised ? 1 : 0) },
-                  ].map(({ label, value }) => <IRow key={label} label={label} value={value}/>)}
                 </div>
               </div>
             </div>
@@ -893,8 +921,8 @@ const IRow = ({ label, value, dot }) => (
   </div>
 );
 
-const PRow = ({ name, role, grad, audioOff, videoOff, handUp, highlight }) => (
-  <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+const PRow = ({ name, role, grad, audioOff, videoOff, handUp, highlight, onRemove }) => (
+  <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl group/prow"
     style={{ background: highlight ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.04)', border: highlight ? '1px solid rgba(99,102,241,0.2)' : '1px solid rgba(255,255,255,0.08)' }}>
     <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style={{ background: grad }}>
       {name.charAt(0).toUpperCase()}
@@ -903,11 +931,16 @@ const PRow = ({ name, role, grad, audioOff, videoOff, handUp, highlight }) => (
       <p className="text-sm font-medium text-white truncate">{name}</p>
       <p className="text-[10px]" style={{ color: 'rgba(148,163,184,0.6)' }}>{role}</p>
     </div>
-    <div className="flex items-center gap-1 flex-shrink-0">
+    <div className="flex items-center gap-2 flex-shrink-0">
       {handUp && <span className="text-base">✋</span>}
       {audioOff && <div className="w-4 h-4 rounded-full bg-red-500/70 flex items-center justify-center"><MicOffIcon/></div>}
       {videoOff && <div className="w-4 h-4 rounded-full bg-red-500/70 flex items-center justify-center"><VideoOffIcon/></div>}
-      {!audioOff && !videoOff && !handUp && <div className="w-2 h-2 rounded-full bg-emerald-400"/>}
+      {onRemove && (
+         <button onClick={onRemove} className="opacity-0 group-hover/prow:opacity-100 transition-opacity p-1.5 rounded-lg bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white">
+            <XIcon />
+         </button>
+      )}
+      {!audioOff && !videoOff && !handUp && !onRemove && <div className="w-2 h-2 rounded-full bg-emerald-400"/>}
     </div>
   </div>
 );
