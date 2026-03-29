@@ -138,9 +138,9 @@ const HeroSection = ({ user, onOpenPost }) => {
 const QuickActions = () => (
   <div className="grid grid-cols-3 gap-3 mb-5">
     {[
-      { to: '/network',   icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5V4h-5m-9 16H2V4h5m8 6l-3-3-3 3M8 14l3 3 3-3"/></svg>, label: 'Find Connections',  grad: 'linear-gradient(135deg,#ec4899,#8b5cf6)', glow: 'rgba(236,72,153,0.30)'  },
+      { to: '/network',   icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5V4h-5m-9 16H2V4h5m8 6l-3-3-3 3M8 14l3 3 3-3"/></svg>, label: 'Find Peers',  grad: 'linear-gradient(135deg,#ec4899,#8b5cf6)', glow: 'rgba(236,72,153,0.30)'  },
+      { to: '/video',     icon: <IconVideo />, label: 'Live Sessions', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)', glow: 'rgba(245,158,11,0.30)'  },
       { to: '/exchange',  icon: <IconSwap />,  label: 'Match Skills',  grad: 'linear-gradient(135deg,#2563eb,#4f46e5)', glow: 'rgba(37,99,235,0.30)'  },
-      { to: '/dashboard', icon: <IconSpark />, label: 'My Dashboard',  grad: 'linear-gradient(135deg,#059669,#0284c7)', glow: 'rgba(5,150,105,0.25)'  },
     ].map(({ to, icon, label, grad, glow }) => (
       <Link key={to} to={to}
         className="flex flex-col items-center gap-3 p-4 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
