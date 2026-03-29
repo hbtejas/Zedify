@@ -14,7 +14,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || window.location.origin;
+      const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || process.env.REACT_APP_SOCKET_URL || window.location.origin;
       const newSocket = io(SOCKET_URL, {
         withCredentials: true,
         transports: ['websocket', 'polling'],
