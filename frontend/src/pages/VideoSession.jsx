@@ -298,8 +298,20 @@ const VideoSession = () => {
                      <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${rulesAgreed ? 'bg-indigo-500 border-indigo-500' : 'border-white/20'}`}>
                         {rulesAgreed && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={4} className="w-3 h-3"><polyline points="20 6 9 17 4 12" /></svg>}
                      </div>
-                     <span className="text-[11px] text-slate-400">I agree to the Community Standards.</span>
+                     <span className="text-[11px] text-slate-400">
+                        I agree to the <span className="text-white font-bold underline">Community Standards</span> and acknowledge the <span className="text-white font-bold underline">Privacy Policy</span>.
+                     </span>
                   </label>
+
+                  <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
+                     <p className="text-[9px] text-indigo-400/80 font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <ShieldIcon /> IT Rules 2021 & DPDP Information
+                     </p>
+                     <p className="text-[9px] text-slate-500 leading-relaxed">
+                        This session is protected by E2E Peer-to-Peer Encryption. By joining, you consent to data processing as per Indian IT Rules. Traceability ID: <span className="font-mono">{sessionId.slice(0,8)}</span>
+                     </p>
+                  </div>
+
                   <button onClick={() => handleJoin()} disabled={joining || !rulesAgreed} className="w-full py-4 rounded-2xl text-white font-black text-sm bg-indigo-600 disabled:opacity-30">
                     {joining ? 'Checking...' : 'Enter Live Room'}
                   </button>

@@ -537,21 +537,23 @@ const VideoPlayer = ({
               <span className="text-white/50 text-xs font-mono">{formatDuration(duration)}</span>
             </div>
             <div className="w-px h-4" style={{ background: 'rgba(255,255,255,0.15)' }}/>
-            <span className="text-white/40 text-xs">{1 + totalPeers} participant{(1 + totalPeers) !== 1 ? 's' : ''}</span>
+            <div className="flex flex-col">
+               <span className="text-white/40 text-[9px] font-bold uppercase tracking-tight">Traceability ID</span>
+               <span className="text-white/20 text-[8px] font-mono leading-none">{sessionId.slice(0, 18)}...</span>
+            </div>
           </div>
-          <p className="text-white/70 text-sm font-semibold hidden md:block">{isHost ? '🎓 ' : ''}Zedify Session</p>
+          <p className="text-white/70 text-sm font-semibold hidden md:block">{isHost ? '🎓 ' : ''}Zedify Live Session</p>
           <div className="flex items-center gap-2">
-            {isRecording && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-red-300 font-semibold animate-pulse"
-                style={{ background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(220,38,38,0.35)' }}>
-                <RecordIcon /> REC
-              </div>
+            {!isHost && (
+               <button onClick={() => { if(window.confirm('Report this session for violating community standards?')) alert('Report submitted to Zedify Moderator Team.'); }}
+                 className="text-red-400 hover:text-red-300 transition-colors text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 mr-2">
+                 Report
+               </button>
             )}
-            <button onClick={() => { setLayout((l) => (l === 'grid' ? 'spotlight' : 'grid')); setSpotlightId(null); }}
-              className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 rounded-lg"
-              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}>
-              {layout === 'grid' ? 'Spotlight' : 'Grid'}
-            </button>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+               <span className="text-[10px] font-bold text-emerald-500 uppercase">E2EE</span>
+            </div>
           </div>
         </div>
 
