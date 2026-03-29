@@ -17,11 +17,13 @@ const connectDB = async () => {
     return cached.conn;
   }
 
-  const MONGO_URI = process.env.MONGO_URI;
+  const DB_PREFIX = process.env.DB_PREFIX || '';
+  const uriKey = DB_PREFIX ? `${DB_PREFIX}_MONGO_URI` : 'MONGO_URI';
+  const MONGO_URI = process.env[uriKey] || process.env.MONGO_URI;
 
   if (!MONGO_URI) {
-    console.warn('⚠️  MONGO_URI not set — Running in DEMO MODE (in-memory storage).');
-    console.warn('   Set MONGO_URI in your environment variables for data persistence.');
+    console.warn(`⚠️  ${uriKey} not set — Running in DEMO MODE (in-memory storage).`);
+    console.warn('   Set MONGO_URI or your prefixed URI in your environment variables for data persistence.');
     return null;
   }
 
