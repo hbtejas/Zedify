@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+
+  backend:
+    image: raghunandan79/zedify-backend:latest
+    container_name: zedify-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+
+  frontend:
+    image: raghunandan79/zedify-frontend:latest
+    container_name: zedify-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
