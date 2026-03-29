@@ -145,35 +145,46 @@ const LandingNav = ({ scrolled }) => {
     <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
       scrolled ? 'bg-gray-950/90 backdrop-blur-xl border-b border-white/10 shadow-card' : 'bg-transparent'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 group">
-          <ZedifyLogo size={38} animated />
-          <div className="flex flex-col leading-none">
-            <span className="font-black text-xl text-white tracking-tight">Zedify</span>
-            <span className="text-[10px] text-blue-300/70 font-medium tracking-wider uppercase">Skill Exchange</span>
-          </div>
-        </Link>
-        <nav className="hidden md:flex items-center gap-1 glass rounded-2xl px-2 py-1.5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center">
+        {/* Left Side: Logo */}
+        <div className="flex-1 flex justify-start">
+          <Link to="/" className="flex items-center gap-3 group">
+            <ZedifyLogo size={38} animated />
+            <div className="flex flex-col leading-none">
+              <span className="font-black text-xl text-white tracking-tight">Zedify</span>
+              <span className="text-[10px] text-indigo-300 font-bold tracking-wider uppercase drop-shadow">Skill Exchange</span>
+            </div>
+          </Link>
+        </div>
+
+        {/* Center: Navigation Links */}
+        <nav className="hidden md:flex items-center gap-1 glass rounded-2xl px-2 py-1.5 shadow-[0_4px_20px_rgba(0,0,0,0.5)] border border-white/10">
           {['Features','How it works','Skills','Testimonials'].map((l) => (
             <a key={l} href={`#${l.toLowerCase().replace(/ /g,'-')}`}
-              className="text-sm font-medium text-white/70 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 transition-all duration-200">
+              className="text-sm font-semibold text-white/50 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 hover:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] transition-all duration-200">
               {l}
             </a>
           ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
-          <Link to="/login" className="text-sm font-semibold text-white/80 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 transition-all">Sign In</Link>
-          <Link to="/register" className="relative text-sm font-bold px-5 py-2.5 rounded-xl overflow-hidden group text-white"
-            style={{ background: 'linear-gradient(135deg,#2563eb,#6366f1,#a855f7)' }}>
-            Get Started Free
-          </Link>
+
+        {/* Right Side: Auth Actions / Mobile Menu Toggle */}
+        <div className="flex-1 flex justify-end items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
+            <Link to="/login" className="text-sm font-bold text-white/70 hover:text-white px-4 py-2 rounded-xl hover:bg-white/10 transition-all">
+              Sign In
+            </Link>
+            <Link to="/register" className="relative text-sm font-bold px-5 py-2.5 rounded-xl overflow-hidden group text-white hover:scale-105 active:scale-95 transition-all outline-none"
+              style={{ background: 'linear-gradient(135deg,#3b82f6,#6366f1,#a855f7)', boxShadow: '0 0 20px rgba(99,102,241,0.4)' }}>
+              Get Started Free
+            </Link>
+          </div>
+          <button onClick={() => setOpen(!open)} className="md:hidden text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              {open ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    : <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />}
+            </svg>
+          </button>
         </div>
-        <button onClick={() => setOpen(!open)} className="md:hidden text-white/80 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-all">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            {open ? <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  : <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />}
-          </svg>
-        </button>
       </div>
       {open && (
         <div className="md:hidden glass-dark border-t border-white/10 px-4 py-4 space-y-1">
