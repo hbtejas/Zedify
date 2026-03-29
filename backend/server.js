@@ -1,8 +1,5 @@
-/**
- * server.js — Local-dev & traditional-server entry point.
- * On Vercel, use api/index.js instead (no Socket.io).
- */
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const http = require('http');
 const app  = require('./app');
 const { initSocket } = require('./socket/socketServer');
