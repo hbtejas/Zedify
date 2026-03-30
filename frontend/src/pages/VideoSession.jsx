@@ -4,31 +4,12 @@ import VideoPlayer from '../components/VideoPlayer';
 import { videoAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const BG = 'linear-gradient(135deg,#060b18 0%,#0d1526 40%,#0f0c29 100%)';
-const GLASS = { background:'rgba(255,255,255,0.05)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.10)' };
-
-const CameraIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-    <circle cx="12" cy="13" r="4"/>
-  </svg>
-);
-const UsersIcon2 = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-  </svg>
-);
-const ArrowLeftIcon2 = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-    <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
-  </svg>
-);
-const ShieldIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-  </svg>
-);
+const I = {
+  camera: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>,
+  users:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  arrowL: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>,
+  shield: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+};
 
 const VideoSession = () => {
   const { sessionId } = useParams();
@@ -50,23 +31,17 @@ const VideoSession = () => {
       setSession(sess);
       setLoading(false);
       
-      if (sess.hostId?._id === user._id) {
-        setPendingParticipants(sess.waitingList || []);
-      }
+      if (sess.hostId?._id === user._id) setPendingParticipants(sess.waitingList || []);
       
-      const isAllowed = sess.hostId?._id === user._id || 
-                        (sess.allowedUsers || []).some(au => au._id === user._id || au === user._id);
+      const isAllowed = sess.hostId?._id === user._id || (sess.allowedUsers || []).some(au => au._id === user._id || au === user._id);
       
       if (isAllowed && !joined) {
          if (rulesAgreed || sess.hostId?._id === user._id) handleJoin(true);
       }
     } catch (err) {
       setLoading(false);
-      if (err.response?.status === 403) {
-        setError('PRIVATE_ACCESS');
-      } else {
-        setError(err.response?.data?.message || 'Session not found');
-      }
+      if (err.response?.status === 403) setError('PRIVATE_ACCESS');
+      else setError(err.response?.data?.message || 'Session not found');
     }
   };
 
@@ -106,89 +81,37 @@ const VideoSession = () => {
     setJoining(false);
   };
 
-  const handleApprove = async (uId) => {
-     try {
-       await videoAPI.approveParticipant(sessionId, uId);
-       fetchSession();
-     } catch (err) { alert('Approval failed'); }
-  };
-
-  const handleApproveAll = async () => {
-     try {
-       await videoAPI.approveAll(sessionId);
-       fetchSession();
-     } catch (err) { alert('Failed to approve all'); }
-  };
-
-  const handleUpdateSettings = async (updates) => {
-     try {
-        await videoAPI.updateSettings(sessionId, updates);
-        fetchSession();
-     } catch (err) { alert('Failed to update settings'); }
-  };
-
-  const handleRemove = async (uId) => {
-     if(window.confirm('Remove this participant?')) {
-        try {
-           await videoAPI.removeParticipant(sessionId, uId);
-           fetchSession();
-        } catch {}
-     }
-  };
-
-  const handleEnd = async () => {
-    if (window.confirm('End this session for all participants?')) {
-      try {
-        await videoAPI.endSession(sessionId);
-        navigate('/video');
-      } catch {}
-    }
-  };
+  const handleApprove = async (uId) => { try { await videoAPI.approveParticipant(sessionId, uId); fetchSession(); } catch {} };
+  const handleApproveAll = async () => { try { await videoAPI.approveAll(sessionId); fetchSession(); } catch {} };
+  const handleUpdateSettings = async (updates) => { try { await videoAPI.updateSettings(sessionId, updates); fetchSession(); } catch {} };
+  const handleRemove = async (uId) => { if(window.confirm('Remove this participant?')) try { await videoAPI.removeParticipant(sessionId, uId); fetchSession(); } catch {} };
+  const handleEnd = async () => { if (window.confirm('End this session?')) try { await videoAPI.endSession(sessionId); navigate('/video'); } catch {} };
 
   const isHost = session?.hostId?._id === user._id;
 
-  if (loading && !session) {
+  if (loading && !session) return <div className="min-h-screen bg-app flex items-center justify-center"><div className="spinner-lg border-t-brand" /></div>;
+
+  if (error === 'NOT_STARTED' || error === 'EXPIRED') {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: BG }}>
-        <div className="w-12 h-12 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-      </div>
+       <div className="bg-app min-h-screen flex items-center justify-center p-6 text-center">
+          <div className="card-glass max-w-sm w-full p-10">
+             <div style={{ fontSize: 48, marginBottom: 24 }}>{error === 'NOT_STARTED' ? '⏳' : '⌛'}</div>
+             <h2 className="text-white font-black text-2xl mb-4" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>{error === 'NOT_STARTED' ? 'Starting Soon' : 'Session Ended'}</h2>
+             <p className="text-[var(--text-secondary)] text-sm mb-8">{error === 'NOT_STARTED' ? <>Scheduled to start on:<br/><span className="text-[var(--brand-light)] font-bold">{new Date(session?.startTime).toLocaleString()}</span></> : 'This live session has concluded.'}</p>
+             <button onClick={() => navigate('/video')} className="btn-secondary w-full py-4 text-white font-bold">Return Home</button>
+          </div>
+       </div>
     );
-  }
-
-  if (error === 'NOT_STARTED') {
-     return (
-        <div className="min-h-screen flex items-center justify-center p-6 text-center" style={{ background: BG }}>
-           <div className="max-w-sm w-full p-10 rounded-3xl" style={GLASS}>
-              <div className="text-5xl mb-6">⏳</div>
-              <h2 className="text-white font-black text-2xl mb-4">Starting Soon</h2>
-              <p className="text-slate-400 text-sm mb-8">This session is scheduled to start on:<br/><span className="text-indigo-400 font-bold">{new Date(session?.startTime).toLocaleString()}</span></p>
-              <button onClick={() => navigate('/video')} className="w-full py-4 rounded-xl glass-dark text-white font-bold">Return Home</button>
-           </div>
-        </div>
-     );
-  }
-
-  if (error === 'EXPIRED') {
-     return (
-        <div className="min-h-screen flex items-center justify-center p-6 text-center" style={{ background: BG }}>
-           <div className="max-w-sm w-full p-10 rounded-3xl" style={GLASS}>
-              <div className="text-5xl mb-6">⌛</div>
-              <h2 className="text-white font-black text-2xl mb-4">Session Ended</h2>
-              <p className="text-slate-400 text-sm mb-8">This live session has already concluded. Please check back for future sessions.</p>
-              <button onClick={() => navigate('/video')} className="w-full py-4 rounded-xl glass-dark text-white font-bold">Return Home</button>
-           </div>
-        </div>
-     );
   }
 
   if (session?.isLocked && !isHost && !session.allowedUsers.some(u => u._id === user._id || u === user._id)) {
     return (
-       <div className="min-h-screen flex items-center justify-center p-6 text-center" style={{ background: BG }}>
-          <div className="max-w-sm w-full p-10 rounded-3xl" style={GLASS}>
-             <div className="text-5xl mb-6">🔒</div>
-             <h2 className="text-white font-black text-2xl mb-4">Meeting Locked</h2>
-             <p className="text-slate-400 text-sm mb-8">The host has locked this session. No new participants can join at this time.</p>
-             <button onClick={() => navigate('/video')} className="w-full py-4 rounded-xl glass-dark text-white font-bold">Return Home</button>
+       <div className="bg-app min-h-screen flex items-center justify-center p-6 text-center">
+          <div className="card-glass max-w-sm w-full p-10">
+             <div style={{ fontSize: 48, marginBottom: 24 }}>🔒</div>
+             <h2 className="text-white font-black text-2xl mb-4" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>Meeting Locked</h2>
+             <p className="text-[var(--text-secondary)] text-sm mb-8">The host has locked this session. No new participants can join.</p>
+             <button onClick={() => navigate('/video')} className="btn-secondary w-full py-4 text-white font-bold">Return Home</button>
           </div>
        </div>
     );
@@ -196,25 +119,24 @@ const VideoSession = () => {
 
   if (error === 'PRIVATE_ACCESS') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 relative" style={{ background: BG }}>
-         <div className="text-center max-w-sm w-full rounded-[2.5rem] p-10 page-fade-in relative overflow-hidden" style={GLASS}>
-          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
-          <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8" style={{ background:'rgba(245,158,11,0.1)', border:'1px solid rgba(245,158,11,0.2)' }}><ShieldIcon /></div>
-          <h2 className="text-white font-black text-3xl mb-4 tracking-tight">Private Room</h2>
-          <p className="text-sm mb-10 leading-relaxed text-slate-400">
-            This session is restricted. {requestSent ? 'Please wait for the host to review your request.' : 'You must request access from the host to join this session.'}
-          </p>
+      <div className="bg-app min-h-screen flex items-center justify-center p-6 text-center relative">
+         <div className="card-solid max-w-sm w-full p-10 pointer-events-auto" style={{ overflow: 'hidden' }}>
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg,#f59e0b,#f97316)' }} />
+          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#f59e0b' }}>{I.shield}</div>
+          <h2 className="text-white font-black text-3xl mb-4 tracking-tight" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>Private Room</h2>
+          <p className="text-sm mb-10 text-[var(--text-secondary)]">This session is restricted. {requestSent ? 'Please wait for approval.' : 'Request access from the host.'}</p>
+          
           {requestSent ? (
-            <div className="w-full py-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center gap-3">
-               <div className="w-5 h-5 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin" />
-               <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">Waiting for Approval...</span>
+            <div className="card" style={{ padding: 20 }}>
+               <div className="spinner-sm border-t-amber mb-3 mx-auto" style={{ borderColor: 'rgba(245,158,11,0.3)', borderTopColor: '#f59e0b' }} />
+               <span style={{ fontSize: 11, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Waiting for Approval...</span>
             </div>
           ) : (
-            <button onClick={handleRequestAccess} disabled={joining} className="w-full py-4 rounded-2xl text-white font-bold text-base bg-indigo-600 shadow-[0_10px_30px_rgba(79,70,229,0.4)]">
+            <button onClick={handleRequestAccess} disabled={joining} className="btn-primary w-full py-4">
               {joining ? 'Sending...' : 'Request Admittance'}
             </button>
           )}
-          <button onClick={() => navigate('/video')} className="mt-6 text-slate-500 text-xs font-bold uppercase tracking-widest hover:text-white">Back to Feed</button>
+          <button onClick={() => navigate('/video')} className="btn-ghost w-full py-3 mt-4 text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]">Back to Feed</button>
         </div>
       </div>
     );
@@ -222,103 +144,111 @@ const VideoSession = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6" style={{ background: BG }}>
-        <div className="text-center max-w-sm w-full rounded-3xl p-10 page-fade-in" style={GLASS}>
-          <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6" style={{ background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.2)' }}><span className="text-4xl text-red-500 font-bold">!</span></div>
-          <h2 className="text-white font-black text-2xl mb-3">Not Found</h2>
-          <p className="text-sm mb-8 leading-relaxed text-slate-400">{error}</p>
-          <button onClick={() => navigate('/video')} className="w-full py-4 rounded-2xl glass-dark text-white font-bold text-sm">Return Home</button>
+      <div className="bg-app min-h-screen flex items-center justify-center p-6 text-center">
+        <div className="card-glass max-w-sm w-full p-10">
+          <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#ef4444', fontSize: 32, fontWeight: 900 }}>!</div>
+          <h2 className="text-white font-black text-2xl mb-3" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>Not Found</h2>
+          <p className="text-[var(--text-secondary)] text-sm mb-8">{error}</p>
+          <button onClick={() => navigate('/video')} className="btn-secondary w-full py-4 text-white font-bold">Return Home</button>
         </div>
       </div>
     );
   }
 
-  if (joined) {
+  // --- AR screen
+  if (!joined) {
     return (
-      <div className="flex flex-col" style={{ height:'100vh', overflow:'hidden', background: BG }}>
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 z-10" style={{ background:'rgba(0,0,0,0.6)', backdropFilter:'blur(20px)', borderBottom:'1px solid rgba(255,255,255,0.08)' }}>
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/video')} className="w-9 h-9 rounded-xl flex items-center justify-center text-white/60 hover:text-white transition-all hover:bg-white/10" style={{ border:'1px solid rgba(255,255,255,0.08)' }}><ArrowLeftIcon2 /></button>
-            <div className="relative">
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${session?.isLocked ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
-                <span className="text-white font-bold text-sm tracking-tight">{session?.skillName}</span>
-                {session?.isLocked && <span className="text-[9px] px-2 py-0.5 rounded-full font-black text-amber-400 border border-amber-500/30 ml-1">LOCKED</span>}
-              </div>
-              <p className="text-white/40 text-[10px] uppercase font-bold tracking-widest mt-0.5">Host: {session?.hostId?.name}</p>
+      <div className="bg-app min-h-screen flex items-center justify-center p-6 relative">
+        <div className="w-full max-w-3xl page-fade-in relative z-10" style={{ display: 'grid', gap: 24, gridTemplateColumns: 'repeat(5, 1fr)' }}>
+          
+          <div style={{ gridColumn: 'span 2', display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="card-glass" style={{ padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+               <div className="avatar-xl mb-4" style={{ background: 'linear-gradient(135deg,#6366f1,#a855f7)', color: '#fff', fontSize: 36, fontWeight: 900, borderRadius: 24 }}>{session?.skillName?.[0]?.toUpperCase()}</div>
+               <h1 className="text-white text-xl font-black mb-2" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>{session?.skillName}</h1>
+               <p style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Host: {session?.hostId?.name}</p>
+            </div>
+            <div className="card-solid" style={{ padding: 20 }}>
+               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+                 <span style={{ color: 'var(--brand-light)' }}>{I.users}</span>
+                 <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}><strong style={{ color: '#fff' }}>{session?.participants?.length || 0}</strong> Peers in room</p>
+               </div>
+               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                 <span style={{ color: 'var(--success)' }}>{I.shield}</span>
+                 <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Privacy Enabled</p>
+               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            {isHost && pendingParticipants.length > 0 && (
-               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                  <span className="text-[10px] font-black text-amber-500">{pendingParticipants.length} Waiting</span>
-                  <button onClick={handleApproveAll} className="text-[10px] font-bold text-emerald-400 hover:text-white transition-colors">Allow All</button>
-               </div>
-            )}
-            {isHost && <button onClick={handleEnd} className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 shadow-[0_0_20px_rgba(239,68,68,0.2)]">End Session</button>}
+
+          <div className="card-solid" style={{ gridColumn: 'span 3', padding: 32, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+             <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg,#6366f1,#a855f7)' }} />
+             <h2 className="text-white font-black text-xl mb-6 flex items-center gap-3" style={{ fontFamily: "'Space Grotesk',sans-serif" }}>{I.shield} Safety Guidelines</h2>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 32 }}>
+                {[ { t:'Zero Tolerance', d:'Harassment leads to an immediate ban.' }, { t:'Privacy First', d:'No recording without consent.' } ].map((r, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12 }}>
+                     <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 900, color: 'var(--brand-light)' }}>{i+1}</div>
+                     <div>
+                       <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{r.t}</p>
+                       <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>{r.d}</p>
+                     </div>
+                  </div>
+                ))}
+             </div>
+
+             <div style={{ marginTop: 'auto', borderTop: '1px solid var(--border)', paddingTop: 24 }}>
+                <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginBottom: 24 }}>
+                   <input type="checkbox" style={{ display: 'none' }} checked={rulesAgreed} onChange={() => setRulesAgreed(!rulesAgreed)} />
+                   <div style={{ width: 20, height: 20, borderRadius: 6, border: rulesAgreed ? 'none' : '2px solid var(--border-2)', background: rulesAgreed ? 'var(--brand)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s', flexShrink: 0 }}>
+                      {rulesAgreed && <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={4} className="w-3 h-3"><polyline points="20 6 9 17 4 12" /></svg>}
+                   </div>
+                   <span style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      I agree to the <strong style={{ color: '#fff' }}>Community Standards</strong> and acknowledge the <strong style={{ color: '#fff' }}>Privacy Policy</strong>.
+                   </span>
+                </label>
+
+                <div className="card" style={{ padding: 12, marginBottom: 20, background: 'rgba(99,102,241,0.05)', borderColor: 'rgba(99,102,241,0.15)' }}>
+                   <p style={{ fontSize: 10, fontWeight: 900, color: 'rgba(129,140,248,0.8)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>{I.shield} IT Rules 2021 & DPDP Information</p>
+                   <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>This session is protected by encryption. You consent to data processing as per IT Rules. Trace ID: <span style={{ fontFamily: 'monospace' }}>{sessionId.slice(0,8)}</span></p>
+                </div>
+
+                <button onClick={() => handleJoin()} disabled={joining || !rulesAgreed} className="btn-primary w-full py-4 text-sm">
+                  {joining ? 'Checking...' : 'Enter Live Room'}
+                </button>
+             </div>
           </div>
-        </div>
-        <div style={{ flex:1, minHeight:0, overflow:'hidden' }}>
-          <VideoPlayer sessionId={sessionId} isHost={isHost} onEnd={handleEnd} pendingApprovals={pendingParticipants} onApprove={handleApprove} onApproveAll={handleApproveAll} onRemove={handleRemove} settings={{ isLocked: session?.isLocked, isChatDisabled: session?.isChatDisabled }} updateSettings={handleUpdateSettings} />
         </div>
       </div>
     );
   }
 
+  // --- Session
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: BG }}>
-      <div className="w-full max-w-xl z-10 page-fade-in">
-        <div className="grid md:grid-cols-5 gap-6">
-          <div className="md:col-span-2 space-y-4">
-            <div className="rounded-3xl p-6 flex flex-col items-center text-center" style={GLASS}>
-               <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-3xl font-black text-white mb-4" style={{ background:'linear-gradient(135deg,#6366f1,#a855f7)' }}>{session?.skillName?.charAt(0)?.toUpperCase()}</div>
-               <h1 className="text-white text-xl font-black leading-tight mb-2 tracking-tight">{session?.skillName}</h1>
-               <p className="text-white font-bold text-sm tracking-tight text-zinc-500 uppercase text-[10px]">Host: {session?.hostId?.name}</p>
+    <div className="bg-app flex flex-col" style={{ height: '100vh', overflow: 'hidden' }}>
+      <div style={{ background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyItems: 'space-between', zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <button onClick={() => navigate('/video')} className="btn-ghost" style={{ width: 40, height: 40, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{I.arrowL}</button>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: session?.isLocked ? '#f59e0b' : '#ef4444', animation: 'pulse 2s infinite' }} />
+              <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', fontFamily: "'Space Grotesk',sans-serif" }}>{session?.skillName}</span>
+              {session?.isLocked && <span className="badge-amber" style={{ fontSize: 10, padding: '2px 8px' }}>LOCKED</span>}
             </div>
-            <div className="rounded-3xl p-5 space-y-4 bg-white/5 border border-white/5">
-               <div className="flex items-center gap-3"><span className="text-indigo-400"><UsersIcon2 /></span><p className="text-xs text-zinc-400 font-semibold"><span className="text-white font-bold">{session?.participants?.length || 0}</span> Peers in room</p></div>
-               <div className="flex items-center gap-3"><span className="text-emerald-400"><ShieldIcon /></span><p className="text-xs text-zinc-400 font-semibold">Privacy Enabled</p></div>
-            </div>
-          </div>
-          <div className="md:col-span-3">
-            <div className="rounded-[2.5rem] p-8 flex flex-col h-full overflow-hidden relative" style={GLASS}>
-               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500" />
-               <h2 className="text-white font-black text-xl mb-4 flex items-center gap-3"><ShieldIcon /> Safety Guidelines</h2>
-               <div className="space-y-4 mb-8">
-                  {[ { t:'Zero Tolerance', d:'Any form of harassment leads to immediate ban.' }, { t:'Privacy First', d:'No recording without explicit consent.' } ].map((r, i) => (
-                    <div key={i} className="flex gap-3">
-                       <div className="w-5 h-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400 text-[10px] font-black">{i+1}</div>
-                       <div><p className="text-xs font-bold text-white mb-0.5">{r.t}</p><p className="text-[10px] text-slate-400 font-medium">{r.d}</p></div>
-                    </div>
-                  ))}
-               </div>
-               <div className="mt-auto pt-6 space-y-4 border-t border-white/5">
-                  <label className="flex items-start gap-4 cursor-pointer group">
-                     <input type="checkbox" className="sr-only" checked={rulesAgreed} onChange={() => setRulesAgreed(!rulesAgreed)} />
-                     <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition-all ${rulesAgreed ? 'bg-indigo-500 border-indigo-500' : 'border-white/20'}`}>
-                        {rulesAgreed && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={4} className="w-3 h-3"><polyline points="20 6 9 17 4 12" /></svg>}
-                     </div>
-                     <span className="text-[11px] text-slate-400">
-                        I agree to the <span className="text-white font-bold underline">Community Standards</span> and acknowledge the <span className="text-white font-bold underline">Privacy Policy</span>.
-                     </span>
-                  </label>
-
-                  <div className="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
-                     <p className="text-[9px] text-indigo-400/80 font-black uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                        <ShieldIcon /> IT Rules 2021 & DPDP Information
-                     </p>
-                     <p className="text-[9px] text-slate-500 leading-relaxed">
-                        This session is protected by E2E Peer-to-Peer Encryption. By joining, you consent to data processing as per Indian IT Rules. Traceability ID: <span className="font-mono">{sessionId.slice(0,8)}</span>
-                     </p>
-                  </div>
-
-                  <button onClick={() => handleJoin()} disabled={joining || !rulesAgreed} className="w-full py-4 rounded-2xl text-white font-black text-sm bg-indigo-600 disabled:opacity-30">
-                    {joining ? 'Checking...' : 'Enter Live Room'}
-                  </button>
-               </div>
-            </div>
+            <p style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>Host: {session?.hostId?.name}</p>
           </div>
         </div>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+          {isHost && pendingParticipants.length > 0 && (
+            <div className="badge-amber" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: 'rgba(245,158,11,0.15)' }}>
+              <span style={{ fontSize: 11, fontWeight: 800 }}>{pendingParticipants.length} Waiting</span>
+              <button onClick={handleApproveAll} className="btn-ghost" style={{ padding: 0, fontSize: 11, color: '#34d399', fontWeight: 800 }}>Allow All</button>
+            </div>
+          )}
+          {isHost && <button onClick={handleEnd} className="btn-primary" style={{ background: '#dc2626', borderColor: '#ef4444', boxShadow: '0 0 16px rgba(220,38,38,0.4)' }}>End Session</button>}
+        </div>
+      </div>
+      
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <VideoPlayer sessionId={sessionId} isHost={isHost} onEnd={handleEnd} pendingApprovals={pendingParticipants} onApprove={handleApprove} onApproveAll={handleApproveAll} onRemove={handleRemove} settings={{ isLocked: session?.isLocked, isChatDisabled: session?.isChatDisabled }} updateSettings={handleUpdateSettings} />
       </div>
     </div>
   );

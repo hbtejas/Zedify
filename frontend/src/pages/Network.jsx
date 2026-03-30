@@ -6,15 +6,13 @@ import { userAPI, exchangeAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
-/* ─── Design Tokens ─── */
-const BG    = 'linear-gradient(135deg,#060b18 0%,#0d1526 40%,#0f0c29 100%)';
-const GLASS = { background:'rgba(255,255,255,0.05)', backdropFilter:'blur(20px)', WebkitBackdropFilter:'blur(20px)', border:'1px solid rgba(255,255,255,0.10)' };
-const GLASS_DARK = { background:'rgba(0,0,0,0.25)', border:'1px solid rgba(255,255,255,0.08)' };
-
-/* ─── Icons ─── */
-const SearchIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>);
-const SwapIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>);
-const ConnectIcon = () => (<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>);
+/* ── Icons ── */
+const I = {
+  search:  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-5 h-5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+  swap:    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4"><path d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>,
+  connect: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>,
+  star:    <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" className="w-3 h-3"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>,
+};
 
 const Network = () => {
   const { user } = useAuth();
@@ -43,10 +41,10 @@ const Network = () => {
     try {
       if (!q.trim()) {
         const { data } = await userAPI.getSuggestions();
-        setUsers(data.data.filter(u => u._id !== user._id) || []);
+        setUsers((data.data || []).filter(u => u._id !== user._id));
       } else {
         const { data } = await userAPI.searchUsers(q);
-        setUsers(data.data.filter(u => u._id !== user._id) || []);
+        setUsers((data.data || []).filter(u => u._id !== user._id));
       }
     } catch {}
     setLoading(false);
@@ -87,88 +85,86 @@ const Network = () => {
   };
 
   return (
-    <div className="min-h-screen relative" style={{ background: BG }}>
-      {/* Ambient backgrounds */}
-      <div className="fixed top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background:'radial-gradient(circle,rgba(79,70,229,0.12) 0%,transparent 70%)', filter:'blur(80px)' }} />
-      <div className="fixed bottom-0 left-0 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background:'radial-gradient(circle,rgba(236,72,153,0.08) 0%,transparent 70%)', filter:'blur(60px)' }} />
-
+    <div className="bg-app min-h-screen">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 relative z-10 flex gap-6">
+      <div className="page-wrapper content-grid relative z-10">
         <Sidebar />
 
-        <main className="flex-1 min-w-0">
-          {/* Header & Search */}
-          <div className="mb-6 rounded-3xl p-6 relative overflow-hidden" style={GLASS}>
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
-            <h1 className="text-2xl font-bold text-white mb-2">Connect & Network</h1>
-            <p className="text-sm text-slate-400 mb-6 max-w-lg">
-              Find students across campus to exchange skills, collaborate on projects, or just connect based on shared interests.
-            </p>
+        <main className="main-col">
+          {/* ── Header & Search ── */}
+          <div className="grad-border mb-6">
+            <div className="card-solid" style={{ padding: '32px 36px', overflow: 'hidden', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: '-60%', right: '-10%', width: 300, height: 300, background: 'radial-gradient(circle,rgba(99,102,241,0.2) 0%,transparent 70%)', filter: 'blur(40px)' }} />
+              
+              <div style={{ position: 'relative', zIndex: 10 }}>
+                <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', letterSpacing: '-0.5px', marginBottom: 6, fontFamily: "'Space Grotesk',sans-serif" }}>Connect & Network</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 24, maxWidth: 500 }}>
+                  Find students across campus to exchange skills, collaborate on projects, or connect based on shared interests.
+                </p>
 
-            <div className="relative max-w-xl">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                <SearchIcon />
-              </span>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by name, skills (e.g. React, Python), or college..."
-                className="w-full pl-12 pr-4 py-3.5 bg-black/30 border border-white/10 rounded-2xl text-white outline-none transition-all placeholder:text-slate-500 focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 text-sm"
-              />
+                <div style={{ position: 'relative', width: '100%', maxWidth: 500 }}>
+                  <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>{I.search}</span>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name, skills (e.g. React, Python), or college..."
+                    className="input"
+                    style={{ width: '100%', paddingLeft: 48, paddingRight: 16, paddingTop: 14, paddingBottom: 14 }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Results Grid */}
+          {/* ── Results Grid ── */}
           {loading ? (
-             <div className="flex justify-center items-center py-20">
-               <div className="w-10 h-10 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
+             <div style={{ padding: '80px 0', display: 'flex', justifyContent: 'center' }}>
+               <div className="spinner-md border-t-brand" />
              </div>
           ) : users.length === 0 ? (
-             <div className="py-20 text-center rounded-3xl" style={GLASS}>
-               <div className="text-6xl mb-4">🔍</div>
-               <h3 className="text-xl font-bold text-white mb-2">No students found</h3>
-               <p className="text-slate-400 text-sm">Try searching for different skills or names.</p>
+             <div className="card" style={{ padding: '60px 20px', textAlign: 'center' }}>
+               <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+               <h3 style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 8 }}>No students found</h3>
+               <p style={{ color: 'var(--text-secondary)' }}>Try searching for different skills or names.</p>
              </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
               {users.map((u) => {
                 const isFollowing = u.followers?.includes(user._id);
 
                 return (
-                  <div key={u._id} className="rounded-3xl p-5 flex flex-col group transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/20" style={GLASS}>
+                  <div key={u._id} className="card card-hover" style={{ display: 'flex', flexDirection: 'column', padding: 20 }}>
                     
-                    <div className="flex items-start gap-3 mb-4">
-                      {/* Avatar */}
-                      <Link to={`/profile/${u._id}`} className="relative flex-shrink-0">
+                    {/* Top User Info */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginBottom: 16 }}>
+                      <Link to={`/profile/${u._id}`} style={{ position: 'relative', flexShrink: 0 }}>
                         {u.profilePicture ? (
-                          <img src={u.profilePicture} alt={u.name} className="w-14 h-14 rounded-2xl object-cover border-2 border-indigo-500/30 group-hover:border-indigo-500/80 transition-colors" />
+                          <img src={u.profilePicture} alt={u.name} className="avatar-lg" style={{ border: '2px solid rgba(255,255,255,0.08)', objectFit: 'cover' }} />
                         ) : (
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-xl font-bold text-white border-2 border-white/10 group-hover:border-white/30 transition-colors">
+                          <div className="avatar-lg" style={{ background: 'linear-gradient(135deg,#6366f1,#a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 800, color: '#fff', border: '2px solid rgba(255,255,255,0.08)' }}>
                             {u.name?.charAt(0).toUpperCase()}
                           </div>
                         )}
                         {isUserOnline(u._id) && (
-                          <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-[3px] border-[#0a1023] rounded-full" />
+                          <span style={{ position: 'absolute', bottom: 0, right: 0, width: 14, height: 14, background: 'var(--success)', border: '2.5px solid var(--surface)', borderRadius: '50%' }} />
                         )}
                       </Link>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 pt-0.5">
-                        <Link to={`/profile/${u._id}`} className="text-white font-bold text-base truncate block hover:text-indigo-400 transition-colors">
+                      <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
+                        <Link to={`/profile/${u._id}`} style={{ display: 'block', color: 'var(--text-primary)', fontWeight: 800, fontSize: 16, textDecoration: 'none', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {u.name}
                         </Link>
-                        <p className="text-xs text-slate-400 truncate mt-0.5" title={u.college || 'Student'}>
+                        <p style={{ fontSize: 13, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 2 }}>
                           {u.college || 'Student'} {u.branch ? `· ${u.branch}` : ''}
                         </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-md">
-                            ★ {u.avgRating > 0 ? u.avgRating.toFixed(1) : 'New'}
+                        
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+                          <span className="badge-green" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            {I.star} {u.avgRating > 0 ? u.avgRating.toFixed(1) : 'New'}
                           </span>
-                          <span className="text-[10px] text-slate-400">
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>
                             {u.followers?.length || 0} Followers
                           </span>
                         </div>
@@ -176,56 +172,58 @@ const Network = () => {
                     </div>
 
                     {/* Skills Display */}
-                    <div className="flex-1 space-y-3 mb-5">
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
                       {u.skillsOffered?.length > 0 && (
                         <div>
-                          <p className="text-[10px] uppercase font-bold text-indigo-300/80 tracking-wider mb-1.5">Can Teach</p>
-                          <div className="flex flex-wrap gap-1.5">
+                          <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(147,197,253,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Can Teach</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                             {u.skillsOffered.slice(0, 3).map(s => (
-                              <span key={s} className="text-xs text-indigo-200 bg-indigo-500/20 border border-indigo-500/30 px-2.5 py-1 rounded-lg truncate max-w-full">
-                                {s}
-                              </span>
+                              <span key={s} className="skill-tag badge-brand">{s}</span>
                             ))}
                             {u.skillsOffered.length > 3 && (
-                              <span className="text-xs text-indigo-300/50 px-1 py-1">+{u.skillsOffered.length - 3}</span>
+                              <span className="skill-tag" style={{ background: 'transparent', color: 'var(--text-muted)' }}>+{u.skillsOffered.length - 3}</span>
                             )}
                           </div>
                         </div>
                       )}
+                      
                       {u.skillsWanted?.length > 0 && (
                         <div>
-                          <p className="text-[10px] uppercase font-bold text-pink-300/80 tracking-wider mb-1.5">Wants to Learn</p>
-                          <div className="flex flex-wrap gap-1.5">
+                          <p style={{ fontSize: 10, fontWeight: 800, color: 'rgba(216,180,254,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>Wants to Learn</p>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                             {u.skillsWanted.slice(0, 3).map(s => (
-                              <span key={s} className="text-xs text-pink-200 bg-pink-500/20 border border-pink-500/30 px-2.5 py-1 rounded-lg truncate max-w-full">
-                                {s}
-                              </span>
+                              <span key={s} className="skill-tag badge-purple">{s}</span>
                             ))}
+                            {u.skillsWanted.length > 3 && (
+                              <span className="skill-tag" style={{ background: 'transparent', color: 'var(--text-muted)' }}>+{u.skillsWanted.length - 3}</span>
+                            )}
                           </div>
                         </div>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="grid grid-cols-2 gap-2 mt-auto">
+                    <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
                       <button 
                         onClick={() => handleFollow(u._id)}
                         disabled={actionLoading === u._id}
-                        className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${isFollowing ? 'bg-white/5 text-white/70 border border-white/10 hover:bg-white/10' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30'}`}
+                        className={isFollowing ? 'btn-ghost' : 'btn-secondary'}
+                        style={{ flex: 1, padding: '10px 0', fontSize: 13, gap: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       >
                         {actionLoading === u._id ? (
-                          <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        ) : isFollowing ? 'Following' : <><ConnectIcon /> Follow</>}
+                          <div className="spinner-sm border-t-current" />
+                        ) : isFollowing ? 'Following' : <span className="flex">{I.connect} <span style={{marginLeft:4}}>Follow</span></span>}
                       </button>
 
                       <button
                         onClick={() => handleExchange(u._id)}
                         disabled={actionLoading === `req_${u._id}`}
-                        className="py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 transition-all shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-1.5"
+                        className="btn-primary"
+                        style={{ flex: 1, padding: '10px 0', fontSize: 13, gap: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                       >
                         {actionLoading === `req_${u._id}` ? (
-                          <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : <><SwapIcon /> Swap</>}
+                          <div className="spinner-sm border-t-white" />
+                        ) : <span className="flex">{I.swap} <span style={{marginLeft:4}}>Swap</span></span>}
                       </button>
                     </div>
 

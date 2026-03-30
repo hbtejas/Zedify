@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
@@ -7,126 +7,52 @@ import { postAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Design tokens Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const BG = 'linear-gradient(135deg,#060b18 0%,#0d1526 40%,#0f0c29 100%)';
-const GLASS = {
-  background: 'rgba(255,255,255,0.05)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  border: '1px solid rgba(255,255,255,0.10)',
+/* ── Icons ── */
+const I = {
+  camera:  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><circle cx="12" cy="13" r="3" strokeLinecap="round" strokeLinejoin="round" /></svg>,
+  send:    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13" strokeLinecap="round" strokeLinejoin="round"/><polygon points="22 2 15 22 11 13 2 9 22 2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  x:       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>,
+  video:   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M4 8h8a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2z" /></svg>,
+  swap:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>,
+  up:      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7"/></svg>,
+  refresh: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>,
+  people:  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>,
 };
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Icons Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const IconCamera = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-    <circle cx="12" cy="13" r="3" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const IconSend = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <line x1="22" y1="2" x2="11" y2="13" strokeLinecap="round" strokeLinejoin="round" />
-    <polygon points="22 2 15 22 11 13 2 9 22 2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-const IconX = () => (
-  <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-    <line x1="18" y1="6" x2="6" y2="18" strokeLinecap="round" />
-    <line x1="6" y1="6" x2="18" y2="18" strokeLinecap="round" />
-  </svg>
-);
-const IconSpark = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-  </svg>
-);
-const IconSwap = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
-  </svg>
-);
-const IconVideo = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.87v6.26a1 1 0 01-1.447.894L15 14M4 8h8a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4a2 2 0 012-2z" />
-  </svg>
-);
-const IconChevronUp = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-  </svg>
-);
-const IconRefresh = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-  </svg>
-);
-
-/* -------------------------------- Hero Section -------------------------------- */
+/* ── Hero ── */
 const HeroSection = ({ user, onOpenPost }) => {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = user?.name?.split(' ')[0] || 'there';
-
-  const stats = [
-    { label: 'Network', value: (user?.followers?.length || 0) + (user?.following?.length || 0) },
-    { label: 'Teaching', value: user?.skillsOffered?.length || 0 },
-    { label: 'Learning', value: user?.skillsWanted?.length || 0 },
-  ];
+  const first = user?.name?.split(' ')[0] || 'there';
 
   return (
-    <div className="relative rounded-[2rem] overflow-hidden mb-6 p-[2px] border border-white/10" 
-         style={{ background: 'linear-gradient(145deg, rgba(30,35,50,0.8) 0%, rgba(15,20,30,0.9) 100%)', boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)' }}>
-         
-      <div className="absolute top-[-50%] right-[-10%] w-[80%] h-[150%] bg-blue-600/30 rounded-full blur-[90px] pointer-events-none mix-blend-screen" />
-      <div className="absolute bottom-[-30%] left-[-20%] w-[60%] h-[120%] bg-fuchsia-600/25 rounded-full blur-[100px] pointer-events-none mix-blend-screen" />
-      <div className="absolute top-[20%] left-[30%] w-[40%] h-[60%] bg-indigo-500/20 rounded-full blur-[80px] pointer-events-none mix-blend-screen" />
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
-
-      <div className="relative px-6 py-8 sm:px-8 sm:py-10 flex flex-col md:flex-row items-center gap-8 rounded-[2rem] bg-gray-950/20 backdrop-blur-3xl z-10">
+    <div className="grad-border mb-6">
+      <div className="card-solid" style={{ background: 'var(--bg-2)', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: 400, height: 400, background: 'radial-gradient(circle,rgba(37,99,235,0.15) 0%,transparent 70%)', filter: 'blur(50px)' }} />
         
-        {/* User Card Area */}
-        <div className="flex-shrink-0 relative group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-[2rem] blur-xl opacity-30 group-hover:opacity-60 transition duration-500" />
-          <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-[2.5rem] overflow-hidden border-2 border-white/10" style={{ background: '#0a0f1e' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, padding: '32px 36px', zIndex: 10, position: 'relative' }}>
+          <div style={{ position: 'relative' }}>
             {user?.profilePicture ? (
-              <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover" />
+              <img src={user.profilePicture} alt="Profile" className="avatar-xl" style={{ border: '2px solid rgba(255,255,255,0.1)', objectFit: 'cover' }} />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl font-black text-white bg-gradient-to-br from-indigo-500 to-purple-600">
-                {user?.name?.charAt(0).toUpperCase()}
-              </div>
+              <div className="avatar-xl" style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, fontWeight: 900, color: '#fff' }}>{first[0]}</div>
             )}
-            <div className="absolute bottom-1 right-1 w-6 h-6 rounded-full bg-emerald-400 border-[3px] border-[#0a0f1e] shadow-[0_0_15px_rgba(52,211,153,0.8)]" />
+            <div style={{ position: 'absolute', bottom: 4, right: 4, width: 20, height: 20, background: 'var(--success)', borderRadius: '50%', border: '4px solid var(--bg-2)' }} />
           </div>
-        </div>
 
-        {/* Content Area */}
-        <div className="flex-1 text-center md:text-left z-10 w-full min-w-0">
-          <p className="text-indigo-300 font-semibold tracking-wide text-sm uppercase mb-1 flex items-center justify-center md:justify-start gap-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-400" /> {greeting}
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2 truncate">
-            Stay hungry, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">{firstName}</span>.
-          </h1>
-          <p className="text-slate-400 text-sm sm:text-base mb-6 max-w-lg mx-auto md:mx-0">
-            {user?.college ? `Representing ${user.college}` : 'Building your campus network'}. 
-            Share what you're working on and exchange skills today!
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <button
-              onClick={onOpenPost}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-[0_8px_16px_-4px_rgba(99,102,241,0.5)] active:scale-95"
-            >
-              <IconSend /> Create Update
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand-light)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+              {greeting}
+            </p>
+            <h1 style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-1px', marginBottom: 4, fontFamily: "'Space Grotesk',sans-serif" }}>
+              Stay hungry, <span className="text-gradient">{first}</span>.
+            </h1>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 20 }}>
+              {user?.college ? `Representing ${user.college}` : 'Building your campus network'}.
+            </p>
+            <button onClick={onOpenPost} className="btn-primary" style={{ padding: '10px 24px', fontSize: 14 }}>
+              <span className="flex">{I.send}</span> Create Update
             </button>
-            <div className="flex gap-4 px-4 py-2 rounded-xl bg-white/5 border border-white/5">
-              {stats.map((s, idx) => (
-                <div key={idx} className="flex flex-col items-center px-3" style={idx > 0 ? { borderLeft: '1px solid rgba(255,255,255,0.05)' } : {}}>
-                  <span className="text-white font-black text-lg leading-none">{s.value}</span>
-                  <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-1">{s.label}</span>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -134,45 +60,37 @@ const HeroSection = ({ user, onOpenPost }) => {
   );
 };
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Quick Actions Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
+/* ── Quick Actions ── */
 const QuickActions = () => (
-  <div className="grid grid-cols-3 gap-3 mb-5">
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 24 }}>
     {[
-      { to: '/network',   icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5V4h-5m-9 16H2V4h5m8 6l-3-3-3 3M8 14l3 3 3-3"/></svg>, label: 'Find Peers',  grad: 'linear-gradient(135deg,#ec4899,#8b5cf6)', glow: 'rgba(236,72,153,0.30)'  },
-      { to: '/video',     icon: <IconVideo />, label: 'Live Sessions', grad: 'linear-gradient(135deg,#f59e0b,#ef4444)', glow: 'rgba(245,158,11,0.30)'  },
-      { to: '/exchange',  icon: <IconSwap />,  label: 'Match Skills',  grad: 'linear-gradient(135deg,#2563eb,#4f46e5)', glow: 'rgba(37,99,235,0.30)'  },
-    ].map(({ to, icon, label, grad, glow }) => (
-      <Link key={to} to={to}
-        className="flex flex-col items-center gap-3 p-4 rounded-2xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.97]"
-        style={{ ...GLASS }}>
-        <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white"
-          style={{ background: grad, boxShadow: `0 6px 16px ${glow}` }}>
-          {icon}
-        </div>
-        <span className="text-xs font-semibold text-center leading-tight"
-          style={{ color: 'rgba(226,232,240,0.8)' }}>{label}</span>
+      { to: '/network',  icon: I.people, label: 'Find Peers',    b: 'rgba(236,72,153,0.15)', c: '#f472b6' },
+      { to: '/video',    icon: I.video,  label: 'Live Sessions', b: 'rgba(245,158,11,0.15)', c: '#fbbf24' },
+      { to: '/exchange', icon: I.swap,   label: 'Match Skills',  b: 'rgba(56,189,248,0.15)', c: '#7dd3fc' },
+    ].map(({ to, icon, label, b, c }) => (
+      <Link key={to} to={to} className="card card-hover" style={{ padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+        <div style={{ width: 44, height: 44, borderRadius: 14, background: b, color: c, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{icon}</div>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)' }}>{label}</span>
       </Link>
     ))}
   </div>
 );
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Create Post Box Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const CreatePostBox = ({ onPost, isOpen, setIsOpen }) => {
+/* ── Create Post Box ── */
+const CreatePost = ({ onPost, open, setOpen }) => {
   const { user } = useAuth();
   const [content, setContent] = useState('');
   const [media, setMedia] = useState(null);
-  const [mediaPreview, setMediaPreview] = useState('');
+  const [preview, setPreview] = useState('');
   const [loading, setLoading] = useState(false);
-  const fileRef = useRef();
+  const fileRef = useRef(null);
 
-  const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setMedia(file);
-    setMediaPreview(URL.createObjectURL(file));
+  const handleFile = e => {
+    const f = e.target.files[0];
+    if (f) { setMedia(f); setPreview(URL.createObjectURL(f)); }
   };
 
-  const handleSubmit = async (e) => {
+  const submit = async e => {
     e.preventDefault();
     if (!content.trim() && !media) return;
     setLoading(true);
@@ -182,117 +100,36 @@ const CreatePostBox = ({ onPost, isOpen, setIsOpen }) => {
       if (media) fd.append('media', media);
       const { data } = await postAPI.createPost(fd);
       onPost(data.data);
-      setContent('');
-      setMedia(null);
-      setMediaPreview('');
-      setIsOpen(false);
+      setContent(''); setMedia(null); setPreview(''); setOpen(false);
     } catch {}
     setLoading(false);
   };
 
   return (
-    <div className="rounded-2xl mb-5 overflow-hidden" style={{ ...GLASS }}>
-      <div className="h-px w-full"
-        style={{ background: 'linear-gradient(90deg,transparent,rgba(99,102,241,0.5),transparent)' }} />
-
-      {!isOpen ? (
-        <button onClick={() => setIsOpen(true)}
-          className="w-full flex items-center gap-3 px-5 py-4 transition-colors hover:bg-white/[0.03] group">
-          {user?.profilePicture ? (
-            <img src={user.profilePicture} alt={user.name}
-              className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-              style={{ border: '2px solid rgba(99,102,241,0.3)' }} />
-          ) : (
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
-              {user?.name?.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <span className="flex-1 text-left text-sm rounded-xl px-4 py-2.5"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(148,163,184,0.5)' }}>
-            What skill are you working on, {user?.name?.split(' ')[0]}?
-          </span>
-          <span className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.25)', color: '#818cf8' }}>
-            <IconCamera />
-          </span>
+    <div className="card" style={{ marginBottom: 24, overflow: 'hidden' }}>
+      {!open ? (
+        <button onClick={() => setOpen(true)} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: 16, background: 'none', border: 'none', textAlign: 'left' }}>
+          {user?.profilePicture ? <img src={user.profilePicture} className="avatar-md" alt="Avatar" /> : <div className="avatar-md" style={{ background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>{user?.name?.[0]}</div>}
+          <div className="input" style={{ flex: 1, color: 'var(--text-muted)', cursor: 'pointer' }}>What skill are you working on, {user?.name?.split(' ')[0]}?</div>
         </button>
       ) : (
-        <form onSubmit={handleSubmit} className="p-5">
-          <div className="flex gap-3">
-            <div className="flex-shrink-0 mt-0.5">
-              {user?.profilePicture ? (
-                <img src={user.profilePicture} alt={user.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                  style={{ border: '2px solid rgba(99,102,241,0.3)' }} />
-              ) : (
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
-                  style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)' }}>
-                  {user?.name?.charAt(0).toUpperCase()}
+        <form onSubmit={submit} style={{ padding: 20 }}>
+          <div style={{ display: 'flex', gap: 12 }}>
+            {user?.profilePicture ? <img src={user.profilePicture} className="avatar-md" alt="Avatar" /> : <div className="avatar-md" style={{ background: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700 }}>{user?.name?.[0]}</div>}
+            <div style={{ flex: 1 }}>
+              <textarea autoFocus value={content} onChange={e => setContent(e.target.value)} placeholder="What's going on?" className="input" style={{ height: 100, resize: 'none' }} />
+              {preview && (
+                <div style={{ position: 'relative', marginTop: 12, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)' }}>
+                  {media?.type?.startsWith('image') ? <img src={preview} className="w-full max-h-56 object-cover" /> : <video src={preview} controls className="w-full max-h-56" />}
+                  <button type="button" onClick={() => { setMedia(null); setPreview(''); }} style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none', padding: 6, borderRadius: '50%', cursor: 'pointer' }}>{I.x}</button>
                 </div>
               )}
-            </div>
-            <div className="flex-1">
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={`What are you learning or teaching, ${user?.name?.split(' ')[0]}?`}
-                rows={4}
-                autoFocus
-                className="w-full resize-none px-4 py-3 rounded-xl text-sm text-white outline-none transition-all"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.10)',
-                  '--tw-placeholder-color': 'rgba(148,163,184,0.35)',
-                }}
-                onFocus={(e) => { e.target.style.borderColor = 'rgba(99,102,241,0.5)'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.12)'; }}
-                onBlur={(e)  => { e.target.style.borderColor = 'rgba(255,255,255,0.10)'; e.target.style.boxShadow = 'none'; }}
-              />
-
-              {mediaPreview && (
-                <div className="mt-2 relative rounded-xl overflow-hidden"
-                  style={{ border: '1px solid rgba(255,255,255,0.10)' }}>
-                  {media?.type?.startsWith('image') ? (
-                    <img src={mediaPreview} alt="preview" className="w-full max-h-56 object-cover" />
-                  ) : (
-                    <video src={mediaPreview} controls className="w-full max-h-56 no-mirror" />
-                  )}
-                  <button type="button" onClick={() => { setMedia(null); setMediaPreview(''); }}
-                    className="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center text-white transition-colors hover:scale-110"
-                    style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(8px)' }}>
-                    <IconX />
-                  </button>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between mt-4 pt-3"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <button type="button" onClick={() => fileRef.current?.click()}
-                  className="flex items-center gap-1.5 text-sm font-medium px-3 py-2 rounded-xl transition-all hover:scale-[1.02]"
-                  style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
-                  <IconCamera />
-                  Photo / Video
-                </button>
-                <input ref={fileRef} type="file" accept="image/*,video/*" onChange={handleFile} className="hidden" />
-
-                <div className="flex items-center gap-2">
-                  <button type="button" onClick={() => setIsOpen(false)}
-                    className="px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.6)' }}>
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={loading || (!content.trim() && !media)}
-                    className="flex items-center gap-2 px-5 py-2 rounded-xl text-white text-sm font-bold transition-all duration-200 hover:scale-[1.03] active:scale-[0.97] disabled:opacity-50 disabled:scale-100"
-                    style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow: '0 4px 14px rgba(99,102,241,0.4)' }}>
-                    {loading ? (
-                      <>
-                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        PostingÃ¢â‚¬Â¦
-                      </>
-                    ) : (
-                      <><IconSend /> Post</>
-                    )}
-                  </button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
+                <button type="button" onClick={() => fileRef.current?.click()} className="btn-secondary btn-sm" style={{ color: 'var(--brand-light)' }}><span className="flex">{I.camera}</span> Media</button>
+                <input ref={fileRef} type="file" accept="image/*,video/*" hidden onChange={handleFile} />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button type="button" onClick={() => setOpen(false)} className="btn-ghost btn-sm">Cancel</button>
+                  <button type="submit" disabled={loading || (!content.trim() && !media)} className="btn-primary btn-sm">{loading ? 'Posting...' : 'Post'}</button>
                 </div>
               </div>
             </div>
@@ -303,61 +140,7 @@ const CreatePostBox = ({ onPost, isOpen, setIsOpen }) => {
   );
 };
 
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Skeleton loader Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const PostSkeleton = () => (
-  <div className="rounded-2xl p-5 animate-pulse" style={{ ...GLASS }}>
-    <div className="flex items-center gap-3 mb-4">
-      <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: 'rgba(255,255,255,0.08)' }} />
-      <div className="flex-1 space-y-2">
-        <div className="h-3.5 rounded-lg w-1/3" style={{ background: 'rgba(255,255,255,0.08)' }} />
-        <div className="h-3 rounded-lg w-1/4"   style={{ background: 'rgba(255,255,255,0.05)' }} />
-      </div>
-    </div>
-    <div className="space-y-2 mb-4">
-      <div className="h-3.5 rounded-lg w-full" style={{ background: 'rgba(255,255,255,0.07)' }} />
-      <div className="h-3.5 rounded-lg w-5/6"  style={{ background: 'rgba(255,255,255,0.07)' }} />
-      <div className="h-3.5 rounded-lg w-2/3"  style={{ background: 'rgba(255,255,255,0.05)' }} />
-    </div>
-    <div className="flex gap-4 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-      <div className="h-7 w-16 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }} />
-      <div className="h-7 w-16 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }} />
-    </div>
-  </div>
-);
-
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Empty state Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const EmptyFeed = ({ onOpenPost }) => (
-  <div className="flex flex-col items-center justify-center py-16 px-6 text-center rounded-3xl" style={{ ...GLASS }}>
-    <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-5"
-      style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)' }}>
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"
-        style={{ color: '#818cf8' }}>
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-      </svg>
-    </div>
-    <h3 className="font-bold text-white text-lg mb-2">Your feed is empty</h3>
-    <p className="text-sm mb-6 max-w-xs" style={{ color: 'rgba(148,163,184,0.6)' }}>
-      Follow students and share what you're learning. Your journey starts here!
-    </p>
-    <button onClick={onOpenPost}
-      className="flex items-center gap-2 px-6 py-3 rounded-xl text-white font-semibold text-sm transition-all hover:scale-[1.03] active:scale-[0.97]"
-      style={{ background: 'linear-gradient(135deg,#2563eb,#4f46e5,#7c3aed)', boxShadow: '0 6px 18px rgba(99,102,241,0.4)' }}>
-      <IconSend />
-      Create Your First Post
-    </button>
-  </div>
-);
-
-/* Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ Main Page Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
-const REASON_LABELS = {
-  'skill-match': { label: 'Skill Match', color: '#a5b4fc', bg: 'rgba(99,102,241,0.18)' },
-  'trending':    { label: 'Trending',    color: '#fbbf24', bg: 'rgba(245,158,11,0.18)' },
-  'following':   { label: 'Following',  color: '#34d399', bg: 'rgba(16,185,129,0.18)' },
-  'recent':      { label: 'New',        color: '#67e8f9', bg: 'rgba(6,182,212,0.18)'  },
-  'explore':     { label: 'Explore',    color: '#c4b5fd', bg: 'rgba(124,58,237,0.15)' },
-};
-
+/* ── Feed ── */
 const Home = () => {
   const { user } = useAuth();
   const { socket } = useSocket();
@@ -365,147 +148,91 @@ const Home = () => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [postBoxOpen, setPostBoxOpen] = useState(false);
-  const [newPostsBanner, setNewPostsBanner] = useState([]);
+  const [newBanner, setNewBanner] = useState([]);
 
-  const fetchFeed = useCallback(async (p = 1, mode) => {
-    const m = mode !== undefined ? mode : feedMode;
+  const fetch = useCallback(async (p=1, mode) => {
+    const m = mode || feedMode;
     try {
       const { data } = m === 'for-you' ? await postAPI.getAIFeed(p) : await postAPI.getFeed(p);
-      if (p === 1) setPosts(data.data);
-      else setPosts((prev) => [...prev, ...data.data]);
+      setPosts(prev => p === 1 ? data.data : [...prev, ...data.data]);
       setHasMore(data.pagination.page < data.pagination.pages);
     } catch {}
     setLoading(false);
     setLoadingMore(false);
   }, [feedMode]);
 
-  useEffect(() => {
-    setLoading(true);
-    setPosts([]);
-    setPage(1);
-    setHasMore(true);
-    fetchFeed(1, feedMode);
-  }, [feedMode]); // eslint-disable-line
+  useEffect(() => { setLoading(true); setPage(1); fetch(1, feedMode); }, [feedMode, fetch]);
 
   useEffect(() => {
     if (!socket) return;
-    const handleNewPost = ({ post }) => {
-      if (post.userId?._id === user._id || post.userId === user._id) return;
-      setNewPostsBanner((prev) => [post, ...prev]);
-    };
-    socket.on('newPost', handleNewPost);
-    return () => socket.off('newPost', handleNewPost);
+    const h = ({ post }) => { if (post.userId?._id !== user._id && post.userId !== user._id) setNewBanner(p => [post, ...p]); };
+    socket.on('newPost', h);
+    return () => socket.off('newPost', h);
   }, [socket, user._id]);
 
-  const showNewPosts = () => {
-    setPosts((prev) => [...newPostsBanner, ...prev]);
-    setNewPostsBanner([]);
-  };
-
-  const handleNewPost  = (post)        => { setPosts((prev) => [post, ...prev]); setPostBoxOpen(false); };
-  const handleDelete   = (postId)      => setPosts((prev) => prev.filter((p) => p._id !== postId));
-  const handleUpdate   = (updatedPost) => setPosts((prev) => prev.map((p) => (p._id === updatedPost._id ? updatedPost : p)));
-
-  const loadMore = () => {
-    if (loadingMore) return;
-    const nextPage = page + 1;
-    setPage(nextPage);
-    setLoadingMore(true);
-    fetchFeed(nextPage);
+  const LABELS = {
+    'skill-match': { l: 'Skill Match', c: 'badge-brand' },
+    'trending':    { l: 'Trending',    c: 'badge-amber' },
+    'following':   { l: 'Following',   c: 'badge-green' },
+    'recent':      { l: 'New',         c: 'badge-cyan' },
+    'explore':     { l: 'Explore',     c: 'badge-purple' },
   };
 
   return (
-    <div className="min-h-screen" style={{ background: BG }}>
-      <div className="fixed top-0 right-0 w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(79,70,229,0.09) 0%,transparent 70%)', filter: 'blur(80px)' }} />
-      <div className="fixed bottom-0 left-0 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(37,99,235,0.07) 0%,transparent 70%)', filter: 'blur(60px)' }} />
-
+    <div className="bg-app min-h-screen">
       <Navbar />
+      <div className="page-wrapper content-grid relative z-10">
+        <Sidebar />
+        <main className="main-col">
+          <HeroSection user={user} onOpenPost={() => setPostBoxOpen(true)} />
+          <QuickActions />
+          <CreatePost open={postBoxOpen} setOpen={setPostBoxOpen} onPost={p => { setPosts(prev => [p, ...prev]); setPostBoxOpen(false); }} />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 relative z-10">
-        <div className="flex gap-6 items-start">
-          <Sidebar />
+          {/* feed tabs */}
+          <div className="card" style={{ display: 'flex', padding: 4, marginBottom: 16 }}>
+            {['for-you', 'following'].map(k => (
+              <button key={k} onClick={() => setFeedMode(k)} className={`flex-1 rounded-lg py-2.5 text-sm font-bold transition-all ${feedMode === k ? 'text-white' : 'text-[var(--text-muted)]'}`} style={{ background: feedMode === k ? 'rgba(99,102,241,0.2)' : 'transparent', border: feedMode === k ? '1px solid rgba(99,102,241,0.4)' : '1px solid transparent' }}>
+                {k === 'for-you' ? 'For You' : 'Following'}
+                {k === 'for-you' && feedMode === k && <span style={{ marginLeft: 6, fontSize: 10, background: 'var(--brand)', padding: '2px 6px', borderRadius: 999 }}>AI</span>}
+              </button>
+            ))}
+          </div>
 
-          <main className="flex-1 min-w-0">
-            <HeroSection user={user} onOpenPost={() => setPostBoxOpen(true)} />
-            <QuickActions />
-            <CreatePostBox onPost={handleNewPost} isOpen={postBoxOpen} setIsOpen={setPostBoxOpen} />
+          {newBanner.length > 0 && (
+            <button onClick={() => { setPosts(p => [...newBanner, ...p]); setNewBanner([]); }} className="btn-primary w-full py-3 mb-4 rounded-xl text-sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+              <span className="flex">{I.up}</span> {newBanner.length} new post(s)
+            </button>
+          )}
 
-            {/* Feed mode tabs */}
-            <div className="flex items-center gap-1 mb-4 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-              {[
-                { key: 'for-you',   icon: '', label: 'For You',   aiLabel: true },
-                { key: 'following', icon: '', label: 'Following', aiLabel: false },
-              ].map(({ key, icon, label, aiLabel }) => {
-                const active = feedMode === key;
+          {loading ? (
+            <div className="space-y-4"><div className="skeleton h-32" /><div className="skeleton h-48" /></div>
+          ) : posts.length === 0 ? (
+            <div className="card-glass" style={{ padding: 60, textAlign: 'center' }}>
+              <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>It's quiet here...</p>
+              <p style={{ color: 'var(--text-secondary)' }}>Follow students or post what you're up to!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {posts.map(post => {
+                const b = feedMode === 'for-you' && post._aiReason && post._aiReason !== 'own' ? LABELS[post._aiReason] : null;
                 return (
-                  <button key={key} onClick={() => setFeedMode(key)}
-                    className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
-                    style={active
-                      ? { background: 'rgba(99,102,241,0.22)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.30)', boxShadow: '0 0 16px rgba(99,102,241,0.20)' }
-                      : { color: 'rgba(148,163,184,0.55)', border: '1px solid transparent' }}>
-                    {icon && <span>{icon}</span>}
-                    <span>{label}</span>
-                    {active && aiLabel && (
-                      <span className="hidden sm:inline text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(99,102,241,0.3)', color: '#c4b5fd' }}>AI</span>
-                    )}
-                  </button>
+                  <div key={post._id} className="page-fade-in" style={{ animationDuration: '0.3s' }}>
+                    {b && <div style={{ marginBottom: 6, marginLeft: 4 }}><span className={b.c}>{b.l}</span></div>}
+                    <PostCard post={post} onDelete={id => setPosts(p => p.filter(x => x._id !== id))} onUpdate={p => setPosts(prev => prev.map(x => x._id === p._id ? p : x))} />
+                  </div>
                 );
               })}
+              {hasMore && (
+                <button onClick={() => { setLoadingMore(true); setPage(p => p+1); fetch(page+1); }} className="btn-secondary w-full py-3" disabled={loadingMore}>
+                  {loadingMore ? 'Loading...' : 'Load More'}
+                </button>
+              )}
             </div>
-
-            {newPostsBanner.length > 0 && (
-              <button
-                onClick={showNewPosts}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 mb-4 rounded-2xl text-sm font-bold text-white transition-all hover:scale-[1.01] active:scale-[0.99]"
-                style={{ background: 'linear-gradient(135deg,#4f46e5,#7c3aed)', boxShadow: '0 6px 24px rgba(99,102,241,0.45)', border: '1px solid rgba(124,58,237,0.4)' }}>
-                <IconChevronUp />
-                {newPostsBanner.length} new post{newPostsBanner.length !== 1 ? 's' : ''} — tap to load
-              </button>
-            )}
-
-            {loading ? (
-              <div className="space-y-4">
-                <PostSkeleton /><PostSkeleton /><PostSkeleton />
-              </div>
-            ) : posts.length === 0 ? (
-              <EmptyFeed onOpenPost={() => setPostBoxOpen(true)} />
-            ) : (
-              <div className="space-y-4">
-                {posts.map((post) => {
-                  const reason = post._aiReason;
-                  const badge  = feedMode === 'for-you' && reason && reason !== 'own' ? REASON_LABELS[reason] : null;
-                  return (
-                    <div key={post._id}>
-                      {badge && (
-                        <div className="flex items-center gap-1.5 mb-1.5 ml-1">
-                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: badge.bg, color: badge.color }}>
-                            {badge.label}
-                          </span>
-                        </div>
-                      )}
-                      <PostCard post={post} onDelete={handleDelete} onUpdate={handleUpdate} />
-                    </div>
-                  );
-                })}
-                {hasMore && (
-                  <button onClick={loadMore} disabled={loadingMore}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
-                    style={{ ...GLASS }}>
-                    {loadingMore
-                      ? <><div className="w-4 h-4 border-2 border-white/20 border-t-white/70 rounded-full animate-spin" /><span style={{ color: 'rgba(148,163,184,0.7)' }}>Loading…</span></>
-                      : <><IconRefresh /><span style={{ color: 'rgba(148,163,184,0.7)' }}>Load more posts</span></>
-                    }
-                  </button>
-                )}
-              </div>
-            )}
-          </main>
-        </div>
+          )}
+        </main>
       </div>
     </div>
   );
