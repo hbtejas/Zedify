@@ -7,15 +7,16 @@ import { postAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
-/* ── Custom Icons ── */
+/* ── Minimalist Premium Icons ── */
 const I = {
-  plus:     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>,
-  sparkles: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8z"/></svg>,
-  zap:      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>,
-  users:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m12-16a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
-  video:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7zM1 5h15v14H1V5z"/></svg>,
-  swap:     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8M7 4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>,
-  search:   <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+  plus:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>,
+  zap:     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg>,
+  users:   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m12-16a4 4 0 11-8 0 4 4 0 018 0z"/></svg>,
+  video:   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7zM1 5h15v14H1V5z"/></svg>,
+  swap:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M7 16V4m0 0L3 8M7 4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/></svg>,
+  home:    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>,
+  search:  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>,
+  image:   <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>,
 };
 
 const Home = () => {
@@ -26,8 +27,8 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [postModalOpen, setPostModalOpen] = useState(false);
-  const [newCount, setNewCount] = useState(0);
+  const [postBoxOpen, setPostBoxOpen] = useState(false);
+  const [newNotice, setNewNotice] = useState(0);
 
   const fetch = useCallback(async (p=1, mode) => {
     try {
@@ -42,195 +43,229 @@ const Home = () => {
 
   useEffect(() => {
     if (!socket) return;
-    const h = ({ post }) => { if (post.userId?._id !== user._id && post.userId !== user._id) setNewCount(n => n + 1); };
+    const h = ({ post }) => { if (post.userId?._id !== user._id && post.userId !== user._id) setNewNotice(n => n + 1); };
     socket.on('newPost', h);
     return () => socket.off('newPost', h);
   }, [socket, user._id]);
 
-  const firstName = user?.name?.split(' ')[0] || 'Peer';
+  const firstName = user?.name?.split(' ')[0] || 'Student';
 
   return (
-    <div className="bg-app min-h-screen">
+    <div className="bg-app min-h-screen" style={{ background: '#02040a' }}>
       <Navbar />
       
-      <div className="page-wrapper pt-24 pb-20">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr minmax(300px, 700px) 1.2fr', gap: 40 }}>
+      <div className="page-wrapper pt-24">
+        <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 340px', gap: 32 }}>
           
-          {/* ── Left wing ── */}
-          <aside className="sticky top-24 h-fit hidden xl:flex flex-col gap-8 slide-up">
-            <div className="glass-panel" style={{ padding: 40, border: '1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ position: 'relative', width: 96, height: 96, marginBottom: 24 }}>
+          {/* ── Fixed Sidebar ── */}
+          <aside className="sticky top-24 h-[calc(100vh-120px)] flex flex-col slide-up">
+            <div className="glass-panel" style={{ padding: 24, borderRadius: 24, marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
                 {user?.profilePicture ? (
-                  <img src={user.profilePicture} className="w-full h-full object-cover rounded-[32px] border-2 border-indigo-500/50 shadow-2xl" />
+                  <img src={user.profilePicture} className="w-12 h-12 rounded-2xl object-cover border border-white/10" />
                 ) : (
-                  <div className="w-full h-full rounded-[32px] flex items-center justify-center text-3xl font-black text-white bg-gradient-to-br from-indigo-500 to-fuchsia-500 border-2 border-indigo-500/20 shadow-2xl">
-                    {user?.name?.[0]}
-                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-black text-white">{user?.name?.[0]}</div>
                 )}
-                <div style={{ position: 'absolute', bottom: -4, right: -4, width: 28, height: 28, background: 'var(--success)', border: '6px solid var(--panel)', borderRadius: '50%' }} />
-              </div>
-
-              <div style={{ marginBottom: 32 }}>
-                <h1 style={{ fontSize: 28, color: '#fff', marginBottom: 4, letterSpacing: '-1px' }}>{user?.name}</h1>
-                <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{user?.college || 'Zedify University'}</p>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                <div className="glass-card" style={{ padding: '16px 12px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-                  <p style={{ fontSize: 24, fontWeight: 900, color: 'var(--brand-glow)', lineHeight: 1 }}>{user?.followers?.length || 0}</p>
-                  <p style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', marginTop: 8, textTransform: 'uppercase' }}>Peers</p>
+                <div className="min-w-0">
+                  <p style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 2, truncate: 'true' }}>{user?.name}</p>
+                  <p style={{ fontSize: 11, color: 'var(--text-dim)', fontWeight: 600 }}>{user?.college || 'Student'}</p>
                 </div>
-                <div className="glass-card" style={{ padding: '16px 12px', textAlign: 'center', background: 'rgba(255,255,255,0.02)' }}>
-                  <p style={{ fontSize: 24, fontWeight: 900, color: 'var(--accent-glow)', lineHeight: 1 }}>{user?.following?.length || 0}</p>
-                  <p style={{ fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', marginTop: 8, textTransform: 'uppercase' }}>Following</p>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, textAlign: 'center' }}>
+                <div style={{ padding: '12px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 16 }}>
+                  <p style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{user?.followers?.length || 0}</p>
+                  <p style={{ fontSize: 9, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 4 }}>Peers</p>
+                </div>
+                <div style={{ padding: '12px 8px', background: 'rgba(255,255,255,0.03)', borderRadius: 16 }}>
+                  <p style={{ fontSize: 18, fontWeight: 900, color: '#fff' }}>{user?.following?.length || 0}</p>
+                  <p style={{ fontSize: 9, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginTop: 4 }}>Following</p>
                 </div>
               </div>
             </div>
 
-            <nav className="flex flex-col gap-3">
+            <nav className="flex flex-col gap-2">
               {[
-                { to: '/feed', i: I.zap, l: 'Your Activity', a: true },
-                { to: '/network', i: I.users, l: 'Find Peers' },
-                { to: '/video', i: I.video, l: 'Live Study' },
-                { to: '/exchange', i: I.swap, l: 'Skill Swap' },
+                { to: '/feed', i: I.home, l: 'Home Feed', a: true },
+                { to: '/network', i: I.users, l: 'Campus Network' },
+                { to: '/video', i: I.video, l: 'Study Rooms' },
+                { to: '/exchange', i: I.swap, l: 'Skill Exchange' },
               ].map(n => (
-                <Link key={n.to} to={n.to} className="glass-card" style={{ 
-                  display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px', textDecoration: 'none',
-                  border: n.a ? '1.5px solid var(--brand)' : '1px solid var(--border)', background: n.a ? 'rgba(79,70,229,0.1)' : ''
+                <Link key={n.to} to={n.to} style={{ 
+                  display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderRadius: 16, textDecoration: 'none',
+                  background: n.a ? 'rgba(99,102,241,0.08)' : 'transparent',
+                  color: n.a ? '#fff' : 'var(--text-dim)',
+                  border: n.a ? '1px solid rgba(99,102,241,0.15)' : '1px solid transparent',
+                  transition: '0.2s'
                 }}>
-                  <span style={{ color: n.a ? 'var(--brand-glow)' : 'var(--text-muted)', display: 'flex' }}>{n.i}</span>
-                  <span style={{ fontWeight: 800, fontSize: 14, color: n.a ? '#fff' : 'var(--text-dim)' }}>{n.l}</span>
+                  <span style={{ color: n.a ? 'var(--brand-glow)' : 'inherit' }}>{n.i}</span>
+                  <span style={{ fontWeight: 700, fontSize: 14 }}>{n.l}</span>
                 </Link>
               ))}
             </nav>
           </aside>
 
-          {/* ── Center stage (The Feed) ── */}
-          <main className="flex flex-col slide-up min-w-0">
+          {/* ── Main Feed (Refined Standard) ── */}
+          <main className="flex flex-col min-w-0 slide-up">
             
-            <header style={{ marginBottom: 48 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 12, padding: '8px 16px', marginBottom: 24, border: '1px solid rgba(255,255,255,0.08)' }}>
-                <span style={{ color: 'var(--brand-glow)' }}>{I.sparkles}</span>
-                <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>New campus insights available</span>
-              </div>
-              <h1 style={{ fontSize: 48, color: '#fff', letterSpacing: '-2px', lineHeight: 1.1 }}>
-                Hey, <span className="text-gradient-vibrant">{firstName}.</span><br />
-                Ready to learn something <span style={{ color: 'var(--brand-glow)' }}>new?</span>
-              </h1>
+            {/* Header / Greeting */}
+            <header className="mb-10">
+              <h1 style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-1px' }}>Welcome back, <span className="text-gradient">{firstName}.</span></h1>
+              <p style={{ fontSize: 14, color: 'var(--text-dim)', marginTop: 4 }}>Discover insights from your university community.</p>
             </header>
 
-            {/* Quick Post & Search bar */}
-            <div className="glass-panel" style={{ padding: 12, marginBottom: 40, border: '1.5px solid var(--border)', display: 'flex', alignItems: 'center', gap: 20 }}>
-              <div style={{ height: 44, width: 44, borderRadius: 14, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>{I.search}</div>
-              <input onClick={() => setPostModalOpen(true)} type="text" readOnly placeholder="What skill are you working on today?" style={{ background: 'none', border: 'none', color: '#fff', fontSize: 15, fontWeight: 600, flex: 1, cursor: 'pointer' }} />
-              <button onClick={() => setPostModalOpen(true)} className="btn-primary" style={{ padding: '10px 24px', fontSize: 13 }}>Share Insight {I.zap}</button>
+            {/* Content Creator Bar */}
+            <div className="glass-panel" style={{ padding: 10, display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <img src={user?.profilePicture} className="w-full h-full object-cover rounded-xl" />
+              </div>
+              <button 
+                onClick={() => setPostBoxOpen(true)}
+                style={{ flex: 1, height: 44, background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', borderRadius: 14, padding: '0 20px', textAlign: 'left', color: 'var(--text-dim)', fontSize: 14, cursor: 'pointer', fontWeight: 600 }}
+              >
+                Share an insight or skill journey...
+              </button>
+              <button onClick={() => setPostBoxOpen(true)} className="btn-primary" style={{ padding: '0 20px', height: 44, borderRadius: 14 }}>{I.plus}</button>
             </div>
 
-            {/* Feed Tabs Refined */}
-            <div style={{ display: 'flex', gap: 40, marginBottom: 32, borderBottom: '2px solid rgba(255,255,255,0.04)' }}>
+            {/* Integrated Tabs */}
+            <div style={{ display: 'flex', gap: 32, marginBottom: 24, borderBottom: '1.5px solid var(--border)' }}>
               {['for-you', 'following'].map(m => (
                 <button key={m} onClick={() => setFeedMode(m)} style={{ 
-                  padding: '0 0 16px', background: 'none', border: 'none', fontSize: 13, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'pointer', position: 'relative', transition: 'all 0.3s',
+                  padding: '0 0 16px', background: 'none', border: 'none', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', position: 'relative',
                   color: feedMode === m ? '#fff' : 'var(--text-muted)'
                 }}>
-                  {m === 'for-you' ? 'Campus Intel (AI)' : 'Direct Network'}
-                  {feedMode === m && <div style={{ position: 'absolute', bottom: -2, left: 0, width: '100%', height: 2, background: 'var(--brand)', boxShadow: '0 0 15px var(--brand-glow)' }} />}
+                  {m === 'for-you' ? 'Recommended' : 'Following'}
+                  {feedMode === m && <div style={{ position: 'absolute', bottom: -1.5, left: 0, width: '100%', height: 2, background: 'var(--brand)' }} />}
                 </button>
               ))}
             </div>
 
-            {newCount > 0 && (
-              <button onClick={() => { setNewCount(0); fetch(1); }} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginBottom: 24, background: 'rgba(99,102,241,0.2)', border: '1px solid var(--brand)', boxShadow: 'none' }}>
-                View {newCount} New Posts
+            {newNotice > 0 && (
+              <button onClick={() => { setNewNotice(0); fetch(1); }} className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginBottom: 24, height: 48, borderRadius: 16 }}>
+                See {newNotice} new updates
               </button>
             )}
 
+            {/* Feed Cards */}
             <div className="flex flex-col gap-6">
               {loading ? (
-                Array.from({ length: 3 }).map((_, i) => <div key={i} className="glass-card skeleton h-48" />)
+                Array.from({ length: 3 }).map((_, i) => <div key={i} className="glass-panel h-60 skeleton" />)
               ) : posts.length === 0 ? (
-                <div className="glass-card" style={{ padding: 80, textAlign: 'center' }}>
-                  <div style={{ fontSize: 48, marginBottom: 20 }}>🌌</div>
-                  <h3 style={{ fontSize: 20, color: '#fff', marginBottom: 8 }}>Quiet campus today...</h3>
-                  <p style={{ color: 'var(--text-dim)' }}>Be the first to share an update or follow more peers!</p>
+                <div className="glass-panel" style={{ padding: 60, textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-dim)', fontWeight: 600 }}>Your network is quiet. Try following more peers!</p>
                 </div>
               ) : posts.map(p => (
-                <div key={p._id} className="slide-up">
-                  <PostCard post={p} onDelete={id => setPosts(prev => prev.filter(x => x._id !== id))} onUpdate={upd => setPosts(prev => prev.map(x => x._id === upd._id ? upd : x))} />
-                </div>
+                <PostCard key={p._id} post={p} onDelete={id => setPosts(prev => prev.filter(x => x._id !== id))} onUpdate={upd => setPosts(prev => prev.map(x => x._id === upd._id ? upd : x))} />
               ))}
-              {hasMore && <button onClick={() => { setPage(p => p+1); fetch(p+1); }} className="btn-secondary w-full">Explore More</button>}
+              {hasMore && <button onClick={() => { setPage(p => p+1); fetch(p+1); }} className="btn-secondary w-full py-4 text-xs font-black uppercase tracking-widest">Explore More Insights</button>}
             </div>
-
           </main>
 
-          {/* ── Right wing ── */}
-          <aside className="sticky top-24 h-fit hidden xl:flex flex-col gap-8 slide-up" style={{ animationDelay: '0.1s' }}>
+          {/* ── Right Sidebar (Standard) ── */}
+          <aside className="sticky top-24 h-fit flex flex-col gap-6 slide-up">
             <div className="glass-panel" style={{ padding: 24 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <h3 style={{ fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#fff' }}>Trending Skills</h3>
-                <span className="tag-indigo">Live Map</span>
-              </div>
+              <h3 style={{ fontSize: 13, fontWeight: 900, textTransform: 'uppercase', color: '#fff', marginBottom: 20 }}>Suggested Skills</h3>
               <div className="flex flex-col gap-4">
                 {[
-                  { n: 'Three.js Mastery', p: '8 peers live', i: '🧊' },
-                  { n: 'UI Micro-animations', p: '14 peers live', i: '✨' },
-                  { n: 'Ethical Hacking', p: '22 peers live', i: '🛡️' },
+                  { n: 'Vite & React', p: '2K peers', i: '⚡' },
+                  { n: 'Figma Design', p: '1.5K peers', i: '🎨' },
+                  { n: 'Python AI', p: '3K peers', i: '🐍' },
                 ].map((s, i) => (
-                  <div key={i} className="glass-card" style={{ padding: 14, display: 'flex', gap: 14, cursor: 'pointer' }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{s.i}</div>
-                    <div className="min-w-0">
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{s.n}</p>
-                      <p style={{ fontSize: 11, color: 'var(--success)', fontWeight: 800 }}>{s.p}</p>
+                  <div key={i} className="card-hover" style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', cursor: 'pointer' }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>{s.i}</div>
+                    <div>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{s.n}</p>
+                      <p style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>{s.p}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <Link to="/network" className="btn-secondary w-full mt-6 flex justify-center text-xs">Browse All Skills</Link>
             </div>
 
-            <div className="glass-panel" style={{ padding: 24, background: 'linear-gradient(135deg,rgba(99,102,241,0.05),rgba(217,70,239,0.05))' }}>
-               <h3 style={{ fontSize: 11, fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: 12 }}>Campus Wisdom</h3>
-               <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-dim)', fontStyle: 'italic' }}>"Your best teacher is your last peer interaction."</p>
+            <div className="glass-panel" style={{ padding: 24, background: 'rgba(99,102,241,0.03)', border: '1px solid rgba(99,102,241,0.1)' }}>
+              <h4 style={{ fontSize: 11, color: 'var(--brand-glow)', fontWeight: 900, textTransform: 'uppercase', marginBottom: 8 }}>Weekly Spotlight</h4>
+              <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-dim)' }}>Most active skill sharers will get featured on the global discover map next week! 🚀</p>
             </div>
           </aside>
 
         </div>
       </div>
 
-      {/* --- Global Post Modal --- */}
-      {postModalOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(1,3,9,0.98)', backdropFilter: 'blur(32px)', zIndex: 1001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-          <div className="glass-panel w-full max-w-2xl slide-up" style={{ padding: 48, background: 'var(--panel)', border: '1.5px solid var(--border-bright)' }}>
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 }}>
-                <div>
-                   <h2 style={{ fontSize: 32, letterSpacing: '-1px', marginBottom: 8 }}>New Insight</h2>
-                   <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Broadcast your focus to the whole campus.</p>
-                </div>
-                <button onClick={() => setPostModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: 4 }}>
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+      {/* --- Simple Post Modal --- */}
+      {postBoxOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div className="glass-panel w-full max-w-xl slide-up" style={{ padding: 32, borderRadius: 28 }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h2 style={{ fontSize: 20, fontWeight: 800 }}>Create New Update</h2>
+                <button onClick={() => setPostBoxOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: 24 }}>&times;</button>
              </div>
-             
-             <textarea 
-                autoFocus 
-                placeholder="What skill-journey did you start today?" 
-                style={{ width: '100%', height: 200, background: 'none', border: 'none', color: '#fff', fontSize: 26, outline: 'none', resize: 'none', marginBottom: 40, fontWeight: 300 }} 
-                onChange={e => setPosts([{ message: e.target.value }]) /* This is just a placeholder for local state */}
-             />
-
-             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '2.5px solid rgba(255,255,255,0.03)', paddingTop: 40 }}>
-                <div style={{ display: 'flex', gap: 12 }}>
-                   <div className="glass-card" style={{ padding: 12, display: 'flex', color: 'var(--brand-glow)' }}><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg></div>
-                   <div className="glass-card" style={{ padding: 12, display: 'flex', color: 'var(--accent-glow)' }}><svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                </div>
-                <button className="btn-primary" style={{ padding: '16px 48px', fontSize: 16 }}>Broadcast Now</button>
-             </div>
+             <PostModalForm onClose={() => setPostBoxOpen(false)} onPost={p => { setPosts(prev => [p, ...prev]); setPostBoxOpen(false); }} />
           </div>
         </div>
       )}
 
     </div>
+  );
+};
+
+const PostModalForm = ({ onClose, onPost }) => {
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [media, setMedia] = useState(null);
+  const [preview, setPreview] = useState('');
+  const fileRef = useRef();
+
+  const handleMedia = e => {
+    const f = e.target.files[0];
+    if (f) { setMedia(f); setPreview(URL.createObjectURL(f)); }
+  };
+
+  const submit = async e => {
+    e.preventDefault();
+    if (!content.trim() && !media) return;
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('content', content);
+      if (media) fd.append('media', media);
+      const { data } = await postAPI.createPost(fd);
+      onPost(data.data);
+    } catch {}
+    setLoading(false);
+  };
+
+  return (
+    <form onSubmit={submit}>
+       <textarea 
+          autoFocus 
+          value={content}
+          onChange={e => setContent(e.target.value)}
+          placeholder="Share your latest skill achievement or question..." 
+          style={{ width: '100%', height: 160, background: 'none', border: 'none', color: '#fff', fontSize: 18, fontWeight: 500, outline: 'none', resize: 'none', marginBottom: 20 }} 
+       />
+       
+       {preview && (
+         <div style={{ position: 'relative', borderRadius: 20, overflow: 'hidden', marginBottom: 20, border: '1.5px solid var(--border)' }}>
+           {media.type.startsWith('image') ? <img src={preview} className="w-full max-h-80 object-cover" /> : <video src={preview} className="w-full max-h-80" controls />}
+           <button onClick={() => { setMedia(null); setPreview(''); }} style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.6)', border: 'none', color: '#fff', padding: 8, borderRadius: '50%' }}>&times;</button>
+         </div>
+       )}
+
+       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--border)', paddingTop: 20 }}>
+         <button type="button" onClick={() => fileRef.current.click()} className="btn-secondary" style={{ padding: '10px 16px', borderRadius: 12, height: 'fit-content' }}>
+           {I.image}
+         </button>
+         <input ref={fileRef} type="file" hidden accept="image/*,video/*" onChange={handleMedia} />
+         
+         <div style={{ display: 'flex', gap: 12 }}>
+           <button type="button" onClick={onClose} className="btn-ghost" style={{ fontWeight: 700 }}>Cancel</button>
+           <button type="submit" disabled={loading || (!content.trim() && !media)} className="btn-primary" style={{ padding: '10px 32px', borderRadius: 14 }}>
+             {loading ? 'Publishing...' : 'Share Now'}
+           </button>
+         </div>
+       </div>
+    </form>
   );
 };
 
