@@ -7,9 +7,6 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const required = {
   MONGO_URI: 'MongoDB Atlas connection string',
   JWT_SECRET: 'JWT secret key (any long random string)',
-  CLOUDINARY_CLOUD_NAME: 'Your Cloudinary cloud name',
-  CLOUDINARY_API_KEY: 'Your Cloudinary API key',
-  CLOUDINARY_API_SECRET: 'Your Cloudinary API secret',
 };
 
 const placeholders = ['<username>', '<password>', 'xxxxx', 'your_', 'change_this'];
