@@ -272,6 +272,199 @@ Frontend starts on: `http://localhost:3000`
 
 ---
 
+## 🐳 Running the Project with Docker
+
+This project supports running both **frontend** and **backend** services using Docker.
+
+Docker ensures a consistent development environment without installing dependencies locally.
+
+---
+
+## 📦 Prerequisites
+
+Make sure the following are installed:
+
+* Docker
+* Docker Compose (v2+ recommended)
+
+Verify installation:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+## 📁 Clone the Repository
+
+```bash
+git clone <repository-url>
+cd Zedify
+```
+
+Replace `<repository-url>` with the actual repository link.
+
+---
+
+## ⚙️ Configure Backend Environment Variables
+
+Create a `.env` file inside:
+
+```
+backend/.env
+```
+
+Example configuration:
+
+```env
+# ─── Server ─────────────────────────────
+NODE_ENV=development
+PORT=5000
+
+# ─── Database (MongoDB Atlas) ───────────
+MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/zedify?retryWrites=true&w=majority
+
+# ─── Authentication ─────────────────────
+JWT_SECRET=your_super_secure_secret_key
+
+# ─── Cloudinary (Media Uploads) ─────────
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# ─── CORS Configuration ─────────────────
+FRONTEND_URL=http://localhost:3000
+```
+
+Replace placeholders with your actual credentials.
+
+---
+
+## ⚙️ Configure Frontend Environment Variables
+
+Create a `.env` file inside:
+
+```
+frontend/.env
+```
+
+Add:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+This ensures the frontend connects correctly to the backend API when running inside Docker.
+
+---
+
+## 🚀 Run the Application Using Docker Compose
+
+From the project root directory:
+
+```bash
+docker compose up --build
+```
+
+Run in background:
+
+```bash
+docker compose up -d --build
+```
+
+This starts:
+
+* Frontend container
+* Backend container
+
+---
+
+## 🌐 Access the Application
+
+Frontend:
+
+```
+http://localhost:3000
+```
+
+Backend API:
+
+```
+http://localhost:5000
+```
+
+---
+
+## 🛑 Stop the Containers
+
+```bash
+docker compose down
+```
+
+---
+
+## 📦 Using Prebuilt Docker Images (Optional)
+
+Instead of building locally, you can pull images from Docker Hub:
+
+```bash
+docker pull <dockerhub-username>/zedify-backend
+docker pull <dockerhub-username>/zedify-frontend
+```
+
+Then run:
+
+```bash
+docker compose up -d
+```
+
+---
+
+## 🔁 Rebuild Containers After Code Changes
+
+If project files are modified:
+
+```bash
+docker compose up --build
+```
+
+---
+
+## 🧹 Clean Docker Environment (Optional)
+
+Remove stopped containers:
+
+```bash
+docker container prune
+```
+
+Remove unused images:
+
+```bash
+docker image prune
+```
+
+---
+
+## 🧩 Docker Support Included
+
+This project includes:
+
+* Dockerfile for backend service
+* Dockerfile for frontend service
+* docker-compose.yml for full-stack setup
+
+Run everything with:
+
+```bash
+docker compose up --build
+```
+
+This provides a complete containerized development environment.
+
+---
+
 ## 🤝 Contributing (Open Source)
 
 Zedify is an **Open Source** project. We encourage everyone to fork the repository, submit pull requests, open issues, and help us improve the platform! 
